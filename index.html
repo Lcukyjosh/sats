@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KS2 SATs App v3</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--p:#4f46e5;--pl:#eef2ff;--ok:#16a34a;--okl:#dcfce7;--warn:#d97706;--warnl:#fef3c7;--err:#dc2626;--errl:#fee2e2;--pu:#7c3aed;--cy:#0891b2;--te:#059669;--or:#ea580c;--g0:#f9fafb;--g1:#f3f4f6;--g2:#e5e7eb;--g4:#9ca3af;--g6:#4b5563;--g8:#1f2937;--r:12px;--sh:0 1px 3px rgba(0,0,0,.1);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g0);color:var(--g8);min-height:100vh;}
+.hdr{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:0 20px;display:flex;align-items:stretch;justify-content:space-between;flex-wrap:wrap;}
+.htitle{padding:14px 0;}.htitle h1{font-size:1.2rem;font-weight:800;}.htitle p{font-size:.75rem;opacity:.85;margin-top:2px;}
+.hnav{display:flex;align-items:flex-end;gap:2px;padding:0 0 0 12px;}
+.ntab{padding:12px 16px;border:none;background:none;color:rgba(255,255,255,.7);font-size:.82rem;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
+.ntab:hover{color:#fff;background:rgba(255,255,255,.1);}
+.ntab.on{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.15);}
+.hright{padding:14px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.pill{background:rgba(255,255,255,.2);border-radius:20px;padding:4px 11px;font-size:.75rem;font-weight:600;}
+.sdot{width:8px;height:8px;border-radius:50%;background:#9ca3af;flex-shrink:0;transition:background .3s;}
+.sdot.ok{background:#4ade80;}
+.sdot.sy{background:#fbbf24;animation:pu 1s infinite;}
+.sdot.er{background:#f87171;}
+.slbl{font-size:.72rem;opacity:.9;}
+@keyframes pu{0%,100%{opacity:1;}50%{opacity:.3;}}
+/* connection banner */
+.connbanner{padding:14px 20px;font-size:.85rem;font-weight:600;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.connbanner.ok{background:#dcfce7;color:#15803d;}
+.connbanner.er{background:#fee2e2;color:#b91c1c;}
+.connbanner.sy{background:#fef3c7;color:#92400e;}
+.connbanner.hid{display:none;}
+.connbtn{padding:6px 14px;border-radius:7px;border:none;font-size:.8rem;font-weight:700;cursor:pointer;background:rgba(0,0,0,.12);color:inherit;}
+.pnl{display:none;}.pnl.on{display:block;}
+.wrap{max-width:1200px;margin:0 auto;padding:20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:11px;}
+@media(max-width:900px){.g2{grid-template-columns:1fr;}.g5{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:500px){.g5{grid-template-columns:1fr;}}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:18px;}
+.ctitle{font-size:.88rem;font-weight:700;color:var(--g8);margin-bottom:11px;display:flex;align-items:center;gap:7px;}
+.sc{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:13px 15px;border-top:3px solid transparent;}
+.sl{font-size:.68rem;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.sv{font-size:1.7rem;font-weight:800;line-height:1;}
+.ss{font-size:.7rem;color:var(--g6);margin-top:2px;}
+.ssp{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+@media(max-width:700px){.ssp{grid-template-columns:1fr;}}
+.spnl{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:15px;}
+.sptitle{font-size:.82rem;font-weight:700;color:var(--g8);margin-bottom:9px;padding-bottom:7px;border-bottom:2px solid var(--g1);}
+.si{border-radius:7px;padding:9px 11px;display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.si:last-child{margin-bottom:0;}
+.si.hi{background:var(--errl);border-left:4px solid var(--err);}
+.si.me{background:var(--warnl);border-left:4px solid var(--warn);}
+.si.lo{background:var(--okl);border-left:4px solid var(--ok);}
+.si strong{display:block;font-size:.78rem;font-weight:700;margin-bottom:2px;}
+.si span{font-size:.72rem;color:var(--g6);line-height:1.5;}
+label{font-size:.78rem;font-weight:600;color:var(--g6);display:block;margin-bottom:3px;}
+input[type=text],input[type=date],select{width:100%;padding:7px 10px;border:1.5px solid var(--g2);border-radius:7px;font-size:.86rem;color:var(--g8);background:#fff;outline:none;}
+input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--p);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px;}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:11px;}
+.sgi{background:var(--g0);border-radius:7px;padding:9px;}
+.sgi label{font-size:.7rem;color:var(--g6);margin-bottom:4px;}
+.sgi input{background:#fff;width:100%;padding:6px 9px;border:1.5px solid var(--g2);border-radius:7px;font-size:.86rem;outline:none;}
+.smx{font-size:.68rem;color:var(--g4);margin-top:2px;}
+.btn{padding:8px 18px;border-radius:7px;font-size:.85rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.bp{background:var(--p);color:#fff;}.bp:hover{background:#4338ca;}
+.bs{background:var(--te);color:#fff;}.bs:hover{background:#047857;}
+.bo{background:#fff;color:var(--p);border:2px solid var(--p);}.bo:hover{background:var(--pl);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.br{display:flex;gap:9px;justify-content:flex-end;}
+.div{margin:11px 0 7px;font-size:.68rem;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:7px;}
+.div::after{content:'';flex:1;height:1px;background:var(--g2);}
+.mt{display:flex;background:var(--g1);border-radius:9px;padding:3px;margin-bottom:12px;}
+.mb{flex:1;padding:7px 10px;border:none;background:none;border-radius:7px;font-size:.8rem;font-weight:600;color:var(--g6);cursor:pointer;transition:all .2s;text-align:center;}
+.mb.on{background:#fff;color:var(--p);box-shadow:var(--sh);}
+.lp{display:none;}.lp.on{display:block;}
+.qsubs{display:flex;flex-direction:column;gap:9px;margin-bottom:11px;}
+.qsr{background:var(--g0);border-radius:9px;padding:11px;border:1.5px solid var(--g2);}
+.qsh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.qsn{font-size:.8rem;font-weight:700;}
+.qsir{display:flex;align-items:center;gap:9px;}
+.qsir input[type=number]{width:66px;padding:5px 7px;border:1.5px solid var(--g2);border-radius:7px;font-size:.9rem;font-weight:700;text-align:center;outline:none;}
+.oof{font-size:.78rem;color:var(--g6);}
+.bw{flex:1;height:6px;background:var(--g2);border-radius:3px;overflow:hidden;}
+.bf{height:100%;border-radius:3px;transition:width .3s ease;}
+.bpct{font-size:.73rem;font-weight:700;min-width:32px;text-align:right;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.79rem;}
+th{background:var(--g0);padding:7px 9px;text-align:left;font-size:.68rem;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--g2);white-space:nowrap;}
+td{padding:7px 9px;border-bottom:1px solid var(--g1);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--g0);}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:.68rem;font-weight:700;}
+.bgn{background:var(--okl);color:var(--ok);}.byw{background:var(--warnl);color:var(--warn);}.brd{background:var(--errl);color:var(--err);}.bbl{background:var(--pl);color:var(--p);}.bor{background:#fff7ed;color:var(--or);}.bpu{background:#f3e8ff;color:var(--pu);}
+.db{background:none;border:none;cursor:pointer;color:var(--g4);font-size:.9rem;padding:2px 4px;border-radius:3px;}
+.db:hover{color:var(--err);background:var(--errl);}
+.cw{position:relative;height:210px;}
+.tabs{display:flex;gap:3px;background:var(--g1);border-radius:7px;padding:3px;margin-bottom:11px;}
+.tab{flex:1;padding:5px 7px;border:none;background:none;border-radius:5px;font-size:.73rem;font-weight:600;color:var(--g6);cursor:pointer;transition:all .2s;}
+.tab.on{background:#fff;color:var(--p);box-shadow:var(--sh);}
+.qw{max-width:700px;margin:0 auto;padding:20px;}
+.psel{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+@media(max-width:500px){.psel{grid-template-columns:1fr;}}
+.pbtn{border:2.5px solid var(--g2);border-radius:var(--r);padding:16px 13px;cursor:pointer;background:#fff;transition:all .2s;text-align:left;}
+.pbtn:hover,.pbtn.on{border-color:var(--p);background:var(--pl);}
+.pbtn h3{font-size:.9rem;font-weight:700;color:var(--g8);margin-bottom:3px;}
+.pbtn p{font-size:.73rem;color:var(--g6);line-height:1.4;}
+.ptag{display:inline-block;padding:2px 7px;border-radius:9px;font-size:.66rem;font-weight:700;margin-bottom:6px;}
+.pts{background:var(--pl);color:var(--p);}.ptc{background:#f3e8ff;color:var(--pu);}
+.qinfo{font-size:.72rem;color:var(--g4);margin-top:6px;font-style:italic;}
+.wcard{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:26px;text-align:center;}
+.wcard h2{font-size:1.3rem;font-weight:800;color:var(--p);margin-bottom:7px;}
+.wcard p{color:var(--g6);font-size:.85rem;line-height:1.6;margin-bottom:4px;}
+.qcard{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:22px;margin-bottom:12px;}
+.qmeta{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.qnum{background:var(--p);color:#fff;border-radius:7px;padding:3px 10px;font-size:.75rem;font-weight:700;}
+.qsec{background:var(--g1);color:var(--g6);border-radius:7px;padding:3px 8px;font-size:.7rem;font-weight:600;}
+.qtag{border-radius:7px;padding:3px 8px;font-size:.7rem;font-weight:700;}
+.qtxt{font-size:.93rem;font-weight:600;color:var(--g8);line-height:1.55;margin-bottom:4px;}
+.qsen{background:var(--g0);border-left:4px solid var(--p);border-radius:0 7px 7px 0;padding:10px 13px;font-size:.88rem;color:var(--g8);margin-bottom:13px;font-style:italic;}
+.opts{display:flex;flex-direction:column;gap:8px;}
+.obtn{display:flex;align-items:center;gap:10px;padding:11px 13px;border:2px solid var(--g2);border-radius:9px;background:#fff;cursor:pointer;font-size:.87rem;color:var(--g8);text-align:left;transition:all .18s;width:100%;}
+.obtn:hover:not(:disabled){border-color:var(--p);background:var(--pl);}
+.obtn .ol{width:24px;height:24px;border-radius:50%;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:.73rem;font-weight:700;color:var(--g6);flex-shrink:0;}
+.obtn.ok{border-color:var(--ok);background:var(--okl);}.obtn.ok .ol{background:var(--ok);color:#fff;}
+.obtn.wr{border-color:var(--err);background:var(--errl);}.obtn.wr .ol{background:var(--err);color:#fff;}
+.obtn:disabled{cursor:default;}
+.fb{border-radius:9px;padding:10px 13px;margin-top:11px;font-size:.83rem;line-height:1.5;display:none;}
+.fb.on{display:block;}
+.fb.ok{background:var(--okl);color:var(--ok);border-left:4px solid var(--ok);}
+.fb.wr{background:var(--errl);color:var(--err);border-left:4px solid var(--err);}
+.fb strong{display:block;margin-bottom:2px;}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:12px;}
+.rcard{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:24px;}
+.rhero{text-align:center;margin-bottom:18px;}
+.circ{width:90px;height:90px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 10px;font-weight:800;border:6px solid;}
+.circ .big{font-size:1.6rem;line-height:1;}.circ .sm{font-size:.68rem;opacity:.8;}
+.ssco{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px;}
+@media(max-width:440px){.ssco{grid-template-columns:1fr;}}
+.ssc{border-radius:9px;padding:10px;text-align:center;}
+.ssc .sv2{font-size:1.2rem;font-weight:800;}.ssc .sl2{font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.rrow{display:flex;align-items:flex-start;gap:8px;padding:7px 9px;border-radius:7px;margin-bottom:4px;font-size:.78rem;}
+.rrow.ok{background:var(--okl);}.rrow.wr{background:var(--errl);}
+.rrow strong{display:block;font-size:.8rem;margin-bottom:1px;}.rrow span{color:var(--g6);}
+.tbr{margin-bottom:8px;}
+.tbh{display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:2px;}
+.tbn{font-weight:600;}.tbs{color:var(--g6);}
+.tbb{height:6px;background:var(--g2);border-radius:3px;overflow:hidden;}
+.tbf{height:100%;border-radius:3px;}
+.sugi{display:flex;gap:7px;margin-bottom:6px;font-size:.78rem;line-height:1.5;}
+.sbanner{background:var(--okl);border:1.5px solid var(--ok);border-radius:9px;padding:11px 14px;margin-bottom:12px;display:none;align-items:center;gap:9px;font-size:.82rem;color:var(--ok);font-weight:600;}
+.ract{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;}
+.nd{text-align:center;color:var(--g4);font-size:.8rem;padding:16px 0;}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--g8);color:#fff;padding:9px 15px;border-radius:7px;font-size:.8rem;font-weight:500;opacity:0;transform:translateY(10px);transition:all .3s;z-index:9998;pointer-events:none;max-width:320px;word-break:break-word;}
+.toast.on{opacity:1;transform:translateY(0);}
+.mb18{margin-bottom:18px;}
+</style>
+</head>
+<body>
+
+<!-- Connection status banner — always visible at top -->
+<div class="connbanner sy" id="connBanner">
+  <span id="connMsg">🔄 Connecting to cloud…</span>
+  <button class="connbtn" onclick="retryConn()" id="connBtn" style="display:none;">Retry</button>
+</div>
+
+<div class="hdr">
+  <div class="htitle">
+    <h1>📚 KS2 SATs — Quiz &amp; Dashboard</h1>
+    <p>15 questions per section · 10 randomly selected · Scores sync to cloud</p>
+  </div>
+  <div class="hnav">
+    <button class="ntab on" onclick="showP('quiz',this)">🎮 Quiz</button>
+    <button class="ntab" onclick="showP('dash',this)">📊 Dashboard</button>
+    <button class="ntab" onclick="showP('log',this)">✏️ Log Score</button>
+  </div>
+  <div class="hright">
+    <div class="sdot" id="sdot"></div>
+    <span class="slbl" id="slbl">Connecting…</span>
+    <div class="pill" id="totS">0 sessions</div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="pnl on" id="pnl-quiz"><div class="qw">
+  <div id="qwelcome">
+    <div class="wcard">
+      <h2>KS2 SATs Quiz 🎉</h2>
+      <p>10 questions randomly selected from <strong>45 per paper</strong> — every session is different!</p>
+      <p style="font-size:.75rem;color:var(--g4);margin-top:3px;">Scores sync to cloud automatically. Open Dashboard on any device to track progress.</p>
+      <div class="psel">
+        <button class="pbtn on" onclick="selPaper('standard',this)">
+          <div class="ptag pts">KS2 Lower · Year 3/4</div>
+          <h3>📄 KS2 Lower</h3>
+          <p>Fronted adverbials, past tense, commas, word classes, 3-digit arithmetic, multi-step reasoning.</p>
+          <div class="qinfo">45 questions · 10 randomly selected per session</div>
+        </button>
+        <button class="pbtn" onclick="selPaper('challenge',this)">
+          <div class="ptag ptc">⭐ KS2 Upper · Year 5/6</div>
+          <h3>🚀 KS2 Upper</h3>
+          <p>Subjunctive, passive voice, formal register, modal verbs, 4-digit arithmetic, complex reasoning.</p>
+          <div class="qinfo">45 questions · 10 randomly selected per session</div>
+        </button>
+      </div>
+      <button class="btn bp" style="font-size:.95rem;padding:11px 30px;" onclick="startQ()">Start Quiz →</button>
+    </div>
+  </div>
+  <div id="qquestion" style="display:none;"><div id="qcon"></div><div class="qnav"><div id="qnL"></div><div id="qnR"></div></div></div>
+  <div id="qresults" style="display:none;">
+    <div class="rcard">
+      <div class="rhero">
+        <div class="circ" id="circ"><div class="big" id="cbig">—</div><div class="sm">/ 10</div></div>
+        <h2 id="rtitle" style="font-size:1.2rem;font-weight:800;margin-bottom:4px;"></h2>
+        <p id="rsub" style="color:var(--g6);font-size:.83rem;"></p>
+      </div>
+      <div class="ssco" id="ssco"></div>
+      <div style="margin-bottom:16px;"><div class="ctitle" style="margin-bottom:7px;">📋 Question Review</div><div id="rlist"></div></div>
+      <div style="margin-bottom:16px;"><div class="ctitle" style="margin-bottom:7px;">🔤 Grammar Topics</div><div id="tbars"></div></div>
+      <div style="background:var(--g0);border-radius:9px;padding:11px;margin-bottom:12px;"><div class="ctitle" style="margin-bottom:6px;">💡 Suggestions</div><div id="sugs"></div></div>
+      <div class="sbanner" id="sbanner"><span>☁️</span><span>Synced to cloud! Switch to <strong>📊 Dashboard</strong> to see your progress on any device.</span></div>
+      <div class="ract">
+        <button class="btn bo" onclick="retryQ()">🔄 New Random Quiz</button>
+        <button class="btn bo" onclick="goHome()">🏠 Choose Paper</button>
+        <button class="btn bs" onclick="showP('dash',document.querySelectorAll('.ntab')[1])">📊 Dashboard</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- DASHBOARD -->
+<div class="pnl" id="pnl-dash"><div class="wrap">
+  <div class="g5 mb18">
+    <div class="sc" style="border-top-color:var(--p);"><div class="sl">Overall</div><div class="sv" id="sOv" style="color:var(--p);">—</div><div class="ss">all sessions</div></div>
+    <div class="sc" style="border-top-color:var(--pu);"><div class="sl">🔤 Grammar</div><div class="sv" id="sGr" style="color:var(--pu);">—</div><div class="ss">avg %</div></div>
+    <div class="sc" style="border-top-color:var(--or);"><div class="sl">🔢 Maths</div><div class="sv" id="sMa" style="color:var(--or);">—</div><div class="ss">Arith+Reason</div></div>
+    <div class="sc" style="border-top-color:var(--cy);"><div class="sl">➕ Arithmetic</div><div class="sv" id="sAr" style="color:var(--cy);">—</div><div class="ss">avg %</div></div>
+    <div class="sc" style="border-top-color:var(--te);"><div class="sl">🧠 Reasoning</div><div class="sv" id="sRe" style="color:var(--te);">—</div><div class="ss">avg %</div></div>
+  </div>
+  <div class="g2 mb18">
+    <div class="card">
+      <div class="ctitle">📈 Progress Over Time</div>
+      <div class="tabs">
+        <button class="tab on" onclick="swCh('ov',this)">Overall</button>
+        <button class="tab" onclick="swCh('gr',this)">Grammar</button>
+        <button class="tab" onclick="swCh('ma',this)">Maths</button>
+      </div>
+      <div class="cw"><canvas id="pChart"></canvas></div>
+    </div>
+    <div class="card"><div class="ctitle">🎯 Section Performance</div><div class="cw"><canvas id="sChart"></canvas></div></div>
+  </div>
+  <div class="ssp">
+    <div class="spnl"><div class="sptitle">🔤 Grammar Suggestions</div><div id="gSug"><div class="nd">Complete a quiz to see suggestions.</div></div></div>
+    <div class="spnl"><div class="sptitle">🔢 Maths Suggestions</div><div id="mSug"><div class="nd">Complete a quiz to see suggestions.</div></div></div>
+  </div>
+  <div class="card mb18">
+    <div class="ctitle">📅 Session History
+      <button class="btn bo" style="margin-left:auto;padding:4px 10px;font-size:.73rem;" onclick="refreshD()">🔄 Refresh</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Date</th><th>Type</th><th>🔤 Grammar</th><th>➕ Arithmetic</th><th>🧠 Reasoning</th><th>🔢 Maths</th><th>Overall</th><th>Grade</th><th>Notes</th><th></th></tr></thead>
+      <tbody id="hBody"><tr><td colspan="10" class="nd">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+</div></div>
+
+<!-- LOG SCORE -->
+<div class="pnl" id="pnl-log"><div class="wrap">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">✏️ Log a Manual Score</div>
+      <div class="mt">
+        <button class="mb on" onclick="swLM('paper',this)">📄 Theory Paper</button>
+        <button class="mb" onclick="swLM('quiz',this)">🎮 Quiz Score</button>
+      </div>
+      <div class="lp on" id="lp-paper">
+        <div class="fr"><div><label>Date</label><input type="date" id="eDate"></div><div><label>Paper</label><select id="ePaper"><option value="ks2lower">KS2 Lower (Y3/4)</option><option value="ks2upper">KS2 Upper (Y5/6)</option></select></div></div>
+        <div class="div">Section Scores</div>
+        <div class="sg">
+          <div class="sgi"><label>🔤 Grammar</label><input type="number" id="eGr" min="0" max="100" placeholder="score"><div class="smx">out of max</div></div>
+          <div class="sgi"><label>➕ Arithmetic</label><input type="number" id="eAr" min="0" max="100" placeholder="score"><div class="smx">out of max</div></div>
+          <div class="sgi"><label>🧠 Reasoning</label><input type="number" id="eRe" min="0" max="100" placeholder="score"><div class="smx">out of max</div></div>
+        </div>
+        <div class="sg">
+          <div class="sgi"><label>Grammar max</label><input type="number" id="eGrM" min="1" max="100" value="5"></div>
+          <div class="sgi"><label>Arithmetic max</label><input type="number" id="eArM" min="1" max="100" value="3"></div>
+          <div class="sgi"><label>Reasoning max</label><input type="number" id="eReM" min="1" max="100" value="2"></div>
+        </div>
+        <div style="margin-bottom:11px;"><label>Notes</label><input type="text" id="eNotes" placeholder="optional"></div>
+        <div class="br"><button class="btn bp" id="btnP" onclick="addPaper()">+ Add Score</button></div>
+      </div>
+      <div class="lp" id="lp-quiz">
+        <div class="fr"><div><label>Date</label><input type="date" id="qDate"></div><div><label>Paper</label><select id="qPaper"><option value="ks2lower">KS2 Lower (Y3/4)</option><option value="ks2upper">KS2 Upper (Y5/6)</option></select></div></div>
+        <div class="div">Scores per subject</div>
+        <div class="qsubs">
+          <div class="qsr"><div class="qsh"><span class="qsn" style="color:var(--pu);">🔤 Grammar</span><span style="font-size:.7rem;color:var(--g4);">out of <input type="number" id="qGM" min="1" max="50" value="5" style="width:38px;padding:2px 4px;border:1.5px solid var(--g2);border-radius:5px;font-size:.78rem;text-align:center;"></span></div><div class="qsir"><input type="number" id="qGS" min="0" max="50" placeholder="0" oninput="upBar('G')"><span class="oof" id="qGO">/ 5</span><div class="bw"><div class="bf" id="qGB" style="width:0%;background:var(--pu);"></div></div><span class="bpct" style="color:var(--pu);" id="qGP">0%</span></div></div>
+          <div class="qsr"><div class="qsh"><span class="qsn" style="color:var(--cy);">➕ Arithmetic</span><span style="font-size:.7rem;color:var(--g4);">out of <input type="number" id="qAM" min="1" max="50" value="3" style="width:38px;padding:2px 4px;border:1.5px solid var(--g2);border-radius:5px;font-size:.78rem;text-align:center;"></span></div><div class="qsir"><input type="number" id="qAS" min="0" max="50" placeholder="0" oninput="upBar('A')"><span class="oof" id="qAO">/ 3</span><div class="bw"><div class="bf" id="qAB" style="width:0%;background:var(--cy);"></div></div><span class="bpct" style="color:var(--cy);" id="qAP">0%</span></div></div>
+          <div class="qsr"><div class="qsh"><span class="qsn" style="color:var(--te);">🧠 Reasoning</span><span style="font-size:.7rem;color:var(--g4);">out of <input type="number" id="qRM" min="1" max="50" value="2" style="width:38px;padding:2px 4px;border:1.5px solid var(--g2);border-radius:5px;font-size:.78rem;text-align:center;"></span></div><div class="qsir"><input type="number" id="qRS" min="0" max="50" placeholder="0" oninput="upBar('R')"><span class="oof" id="qRO">/ 2</span><div class="bw"><div class="bf" id="qRB" style="width:0%;background:var(--te);"></div></div><span class="bpct" style="color:var(--te);" id="qRP">0%</span></div></div>
+        </div>
+        <div style="margin-bottom:11px;"><label>Notes</label><input type="text" id="qNotes" placeholder="optional"></div>
+        <div class="br"><button class="btn bp" id="btnQ" onclick="addQuiz()">+ Add Score</button></div>
+      </div>
+    </div>
+    <div class="card"><div class="ctitle">📊 Grammar vs Maths</div><div class="cw"><canvas id="gmChart"></canvas></div></div>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+// FIREBASE REST API — no SDK, works from file://, OneDrive, anywhere
+// ══════════════════════════════════════════════════════════════════════════════
+var FB_PROJECT = 'sats-app-73a02';
+var FB_KEY = 'AIzaSyD_NaF9EfJsXtpJQPNc6mXvUbVUlQcrcFs';
+var FB_URL = 'https://firestore.googleapis.com/v1/projects/' + FB_PROJECT + '/databases/(default)/documents/sessions';
+
+// Convert JS object to Firestore REST format
+function toFS(obj) {
+  var f = {};
+  Object.keys(obj).forEach(function(k) {
+    var v = obj[k];
+    if (v === null || v === undefined) return;
+    if (typeof v === 'boolean') f[k] = {booleanValue: v};
+    else if (typeof v === 'number') f[k] = {doubleValue: v};
+    else if (typeof v === 'string') f[k] = {stringValue: v};
+    else if (Array.isArray(v)) {
+      f[k] = {arrayValue: {values: v.map(function(item) {
+        if (item === null || item === undefined) return {nullValue: null};
+        if (typeof item === 'boolean') return {booleanValue: item};
+        if (typeof item === 'number') return {doubleValue: item};
+        if (typeof item === 'string') return {stringValue: item};
+        if (typeof item === 'object') return {mapValue: {fields: toFS(item)}};
+        return {stringValue: String(item)};
+      })}};
+    } else if (typeof v === 'object') {
+      f[k] = {mapValue: {fields: toFS(v)}};
+    }
+  });
+  return f;
+}
+
+// Convert Firestore REST format to JS object
+function fromFS(doc) {
+  var obj = {_fid: doc.name.split('/').pop()};
+  function pv(v) {
+    if (!v) return null;
+    if ('stringValue' in v) return v.stringValue;
+    if ('doubleValue' in v) return v.doubleValue;
+    if ('integerValue' in v) return parseInt(v.integerValue);
+    if ('booleanValue' in v) return v.booleanValue;
+    if ('nullValue' in v) return null;
+    if ('arrayValue' in v) return (v.arrayValue.values || []).map(pv);
+    if ('mapValue' in v) {
+      var o = {};
+      Object.keys(v.mapValue.fields || {}).forEach(function(k) { o[k] = pv(v.mapValue.fields[k]); });
+      return o;
+    }
+    return null;
+  }
+  Object.keys(doc.fields || {}).forEach(function(k) { obj[k] = pv(doc.fields[k]); });
+  return obj;
+}
+
+var DB = {
+  save: function(entry) {
+    return fetch(FB_URL + '?key=' + FB_KEY, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({fields: toFS(entry)})
+    }).then(function(r) {
+      return r.json().then(function(body) {
+        if (!r.ok) throw new Error((body.error && body.error.message) || ('HTTP ' + r.status));
+        return body.name.split('/').pop();
+      });
+    });
+  },
+  loadAll: function() {
+    return fetch(FB_URL + '?key=' + FB_KEY + '&pageSize=500')
+      .then(function(r) {
+        return r.json().then(function(body) {
+          if (!r.ok) throw new Error((body.error && body.error.message) || ('HTTP ' + r.status));
+          return (body.documents || []).map(fromFS);
+        });
+      });
+  },
+  del: function(fid) {
+    return fetch(FB_URL + '/' + fid + '?key=' + FB_KEY, {method: 'DELETE'})
+      .then(function(r) {
+        if (!r.ok) return r.json().then(function(b){ throw new Error((b.error && b.error.message) || ('HTTP ' + r.status)); });
+      });
+  }
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CONNECTION STATE
+// ══════════════════════════════════════════════════════════════════════════════
+var connected = false;
+var sess = [];
+
+function setBanner(type, msg, showRetry) {
+  var b = document.getElementById('connBanner');
+  var m = document.getElementById('connMsg');
+  var btn = document.getElementById('connBtn');
+  b.className = 'connbanner ' + type;
+  m.textContent = msg;
+  btn.style.display = showRetry ? 'inline-block' : 'none';
+  // also update header dot
+  var d = document.getElementById('sdot');
+  var l = document.getElementById('slbl');
+  d.className = 'sdot ' + (type === 'ok' ? 'ok' : type === 'sy' ? 'sy' : 'er');
+  l.textContent = type === 'ok' ? '☁️ Synced' : type === 'sy' ? 'Syncing…' : '⚠️ Offline';
+}
+
+function retryConn() {
+  setBanner('sy', '🔄 Retrying connection…', false);
+  initApp();
+}
+
+function initApp() {
+  setBanner('sy', '🔄 Connecting to cloud…', false);
+  DB.loadAll().then(function(data) {
+    connected = true;
+    sess = data;
+    sess.sort(function(a,b){ return a.date.localeCompare(b.date); });
+    setBanner('ok', '✅ Connected to cloud — scores sync automatically across all devices', false);
+    // Hide banner after 4 seconds
+    setTimeout(function(){ document.getElementById('connBanner').classList.add('hid'); }, 4000);
+    updStats(); updTable();
+  }).catch(function(e) {
+    connected = false;
+    var msg = e && e.message ? e.message : String(e);
+    var hint = '';
+    if (msg.indexOf('403') !== -1 || msg.indexOf('PERMISSION') !== -1 || msg.indexOf('Missing or insufficient') !== -1) {
+      hint = '❌ Firebase Rules are blocking access. Go to Firebase Console → Firestore Database → Rules and publish: allow read, write: if true';
+    } else if (msg.indexOf('400') !== -1) {
+      hint = '❌ Firebase project not found or API key invalid. Check your Firebase config.';
+    } else if (msg.indexOf('Failed to fetch') !== -1 || msg.indexOf('NetworkError') !== -1 || msg.indexOf('Load failed') !== -1) {
+      hint = '❌ No internet connection. Connect to WiFi or mobile data and tap Retry.';
+    } else {
+      hint = '❌ Could not connect: ' + msg + '. Tap Retry when online.';
+    }
+    setBanner('er', hint, true);
+    console.error('Firebase error:', msg);
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// QUESTION BANKS — 15 per section per paper
+// ══════════════════════════════════════════════════════════════════════════════
+var BANK = {
+standard: {
+  grammar: [
+    {id:'sg1',top:'Conjunctions',tc:'#4f46e5',txt:'Tick one word to complete the sentence.',sen:'The children were excited ______ they were going on a school trip.',opts:['but','because','although','however'],ans:1,exp:'"Because" is a subordinating conjunction showing reason.'},
+    {id:'sg2',top:'Verb Tense',tc:'#059669',txt:'Which option correctly completes the sentence in the past tense?',sen:'Yesterday, the dog ______ across the field and ______ over the fence.',opts:['run, jump','ran, jumped','runned, jumped','ran, jump'],ans:1,exp:'"Ran" is the irregular past tense of "run". "Jumped" is the regular past tense of "jump".'},
+    {id:'sg3',top:'Punctuation',tc:'#0891b2',txt:'What punctuation mark ends this sentence?',sen:'What time does the library open',opts:['Full stop (.)','Exclamation mark (!)','Question mark (?)','Comma (,)'],ans:2,exp:'This is a question — it asks "what time". Questions end with a question mark (?).'},
+    {id:'sg4',top:'Commas',tc:'#d97706',txt:'Which sentence uses a comma correctly?',opts:['After the storm, the streets were flooded.','After, the storm the streets were flooded.','After the storm the, streets were flooded.','After the storm the streets, were flooded.'],ans:0,exp:'A comma goes after a fronted adverbial ("After the storm") — a key KS2 grammar rule.'},
+    {id:'sg5',top:'Word Classes',tc:'#7c3aed',txt:'What word class is the underlined word?',sen:'The old man walked slowly along the path. (slowly)',opts:['Noun','Adjective','Verb','Adverb'],ans:3,exp:'"Slowly" is an adverb — it describes HOW the man walked.'},
+    {id:'sg6',top:'Apostrophes',tc:'#dc2626',txt:'Which sentence uses an apostrophe correctly?',opts:["Sara's bag is red and has lots of pockets.","Saras' bag is red and has lots of pockets.","Saras bag is red and has lot's of pockets.","Saras bag is red and has lots of pocket's."],ans:0,exp:'"Sara\'s" uses an apostrophe to show possession.'},
+    {id:'sg7',top:'Sentence Types',tc:'#0891b2',txt:'What type of sentence is this?',sen:'There are twenty-seven children in our class.',opts:['A question','A statement','A command','An exclamation'],ans:1,exp:'This is a statement — it gives information. Statements end with a full stop.'},
+    {id:'sg8',top:'Conjunctions',tc:'#4f46e5',txt:'Tick one word to complete the sentence.',sen:'Ben went to sleep, ______ Sara stayed awake.',opts:['or','but','that','which'],ans:1,exp:'"But" is the correct conjunction — it joins two contrasting ideas.'},
+    {id:'sg9',top:'Verb Tense',tc:'#059669',txt:'Which sentence is written in the past tense?',opts:['She picks up a football.','She picked up a football.','She is picking up a football.','She will pick up a football.'],ans:1,exp:'"Picked" is the simple past tense of "pick".'},
+    {id:'sg10',top:'Word Classes',tc:'#7c3aed',txt:'Which word is a noun in the sentence below?',sen:'The enormous elephant walked slowly through the jungle.',opts:['enormous','walked','slowly','elephant'],ans:3,exp:'"Elephant" is a noun — it names a thing (an animal).'},
+    {id:'sg11',top:'Prefixes',tc:'#db2777',txt:'Which prefix makes the word "happy" mean the opposite?',opts:['re-','un-','pre-','mis-'],ans:1,exp:'"Un-" added to "happy" makes "unhappy" — meaning not happy.'},
+    {id:'sg12',top:'Suffixes',tc:'#db2777',txt:'Add a suffix to the word "quick" to make an adverb.',opts:['quickly','quicker','quicken','quickest'],ans:0,exp:'"Quickly" is an adverb formed by adding the suffix "-ly".'},
+    {id:'sg13',top:'Punctuation',tc:'#0891b2',txt:'Which punctuation mark is missing from this sentence?',sen:'"Can you please read to me Mum"',opts:['Full stop','Comma','Question mark','Exclamation mark'],ans:2,exp:'The sentence is a question in speech marks. It needs a question mark before the closing speech mark.'},
+    {id:'sg14',top:'Commas',tc:'#d97706',txt:'Why does this sentence need a comma?',sen:'After eating her dinner Sara went to bed.',opts:['To separate two nouns','After the fronted adverbial phrase','Before the verb','After the subject'],ans:1,exp:'A comma is needed after the fronted adverbial phrase "After eating her dinner".'},
+    {id:'sg15',top:'Apostrophes',tc:'#dc2626',txt:'Which sentence uses a contraction correctly?',opts:["I didn't go to the park yesterday.","I did'nt go to the park yesterday.","I didnt' go to the park yesterday.","I did not' go to the park yesterday."],ans:0,exp:'"Didn\'t" is the contraction of "did not". The apostrophe replaces the missing letter "o".'}
+  ],
+  arithmetic: [
+    {id:'sa1',top:null,tc:'#0891b2',txt:'What is 3/4 of 120?',opts:['60','80','90','100'],ans:2,exp:'1/4 of 120 = 30. Then 3/4 = 30 x 3 = 90.'},
+    {id:'sa2',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'475 + ______ = 700',opts:['215','225','235','245'],ans:1,exp:'700 - 475 = 225.'},
+    {id:'sa3',top:null,tc:'#0891b2',txt:'What is 1/3 of 99?',opts:['27','30','33','36'],ans:2,exp:'99 / 3 = 33.'},
+    {id:'sa4',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'______ - 63 = 214',opts:['151','267','277','287'],ans:2,exp:'214 + 63 = 277.'},
+    {id:'sa5',top:null,tc:'#0891b2',txt:'What is 256 + 147?',opts:['393','403','413','423'],ans:1,exp:'256 + 147 = 403.'},
+    {id:'sa6',top:null,tc:'#0891b2',txt:'What is 403 - 178?',opts:['215','225','235','245'],ans:1,exp:'403 - 178 = 225.'},
+    {id:'sa7',top:null,tc:'#0891b2',txt:'What is 8 x 9?',opts:['63','72','81','64'],ans:1,exp:'8 x 9 = 72.'},
+    {id:'sa8',top:null,tc:'#0891b2',txt:'What is 72 / 6?',opts:['9','10','11','12'],ans:3,exp:'72 / 6 = 12.'},
+    {id:'sa9',top:null,tc:'#0891b2',txt:'What is 1/2 of 346?',opts:['163','173','183','193'],ans:1,exp:'346 / 2 = 173.'},
+    {id:'sa10',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'7 x ______ = 63',opts:['7','8','9','10'],ans:2,exp:'63 / 7 = 9.'},
+    {id:'sa11',top:null,tc:'#0891b2',txt:'What is 34 + 6 + 20?',opts:['50','55','60','65'],ans:2,exp:'34 + 6 = 40. 40 + 20 = 60.'},
+    {id:'sa12',top:null,tc:'#0891b2',txt:'What is 1/4 of 32?',opts:['6','7','8','9'],ans:2,exp:'32 / 4 = 8.'},
+    {id:'sa13',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'______ / 4 = 9',opts:['27','32','36','40'],ans:2,exp:'9 x 4 = 36.'},
+    {id:'sa14',top:null,tc:'#0891b2',txt:'What is 99 - 34?',opts:['55','65','75','85'],ans:1,exp:'99 - 34 = 65.'},
+    {id:'sa15',top:null,tc:'#0891b2',txt:'What is 6 x 7?',opts:['36','42','48','54'],ans:1,exp:'6 x 7 = 42.'}
+  ],
+  reasoning: [
+    {id:'sr1',top:null,tc:'#059669',txt:'A cinema has 24 rows of seats with 15 seats each. On Saturday, 247 seats were sold. How many seats were empty?',opts:['93','103','113','123'],ans:2,exp:'24 x 15 = 360 total. 360 - 247 = 113 empty.'},
+    {id:'sr2',top:null,tc:'#059669',txt:'Mia has 240 stickers. She gives 1/4 to her sister and 1/3 to her brother. How many stickers does Mia have left?',opts:['80','100','120','140'],ans:1,exp:'1/4 of 240=60. 1/3 of 240=80. 240-60-80=100.'},
+    {id:'sr3',top:null,tc:'#059669',txt:'A baker makes 9 trays of 12 biscuits. He sells 56 in the morning and 28 in the afternoon. How many biscuits are left?',opts:['12','20','24','32'],ans:2,exp:'9x12=108. 108-56-28=24.'},
+    {id:'sr4',top:null,tc:'#059669',txt:'John invited 40 friends to his birthday party. A quarter of them were girls. How many were boys?',opts:['10','20','25','30'],ans:3,exp:'1/4 of 40=10 girls. 40-10=30 boys.'},
+    {id:'sr5',top:null,tc:'#059669',txt:'Sam planted 3 rows of seeds with 5 seeds in each row. A bird ate 2 seeds. How many seeds are left?',opts:['10','11','12','13'],ans:3,exp:'3x5=15. 15-2=13.'},
+    {id:'sr6',top:null,tc:'#059669',txt:'Sara has 8 balls. Sana has 10 balls. They share them equally between 2 buckets. How many balls in each bucket?',opts:['8','9','10','18'],ans:1,exp:'8+10=18. 18/2=9.'},
+    {id:'sr7',top:null,tc:'#059669',txt:'Sam bought a toy car for 25p and a teddy bear for 45p. He gets 10p change. How much did Sam start with?',opts:['70p','75p','80p','85p'],ans:2,exp:'25+45=70p spent. 70+10=80p started with.'},
+    {id:'sr8',top:null,tc:'#059669',txt:'A shop sells sharpeners in packs of 10. In a week the shop sells 30 sharpeners. How many packs were sold?',opts:['2','3','4','5'],ans:1,exp:'30 / 10 = 3 packs.'},
+    {id:'sr9',top:null,tc:'#059669',txt:'16 children went to a party. One quarter do not like pizza. How many children DO like pizza?',opts:['4','8','10','12'],ans:3,exp:'1/4 of 16=4 do not like pizza. 16-4=12 do like pizza.'},
+    {id:'sr10',top:null,tc:'#059669',txt:'Anna has 2 pots. She plants 6 seeds in each pot. How many seeds does she have altogether?',opts:['8','10','12','14'],ans:2,exp:'2x6=12 seeds.'},
+    {id:'sr11',top:null,tc:'#059669',txt:'A book costs £27. Sara has £18. How much more money does Sara need to buy the book?',opts:['£7','£8','£9','£10'],ans:2,exp:'27-18=9.'},
+    {id:'sr12',top:null,tc:'#059669',txt:'20 bananas are shared equally among 4 monkeys. How many bananas does each monkey get?',opts:['4','5','6','7'],ans:1,exp:'20/4=5 bananas each.'},
+    {id:'sr13',top:null,tc:'#059669',txt:'Sam has 6 hats. Sara has twice as many. How many hats does Sara have?',opts:['8','10','12','14'],ans:2,exp:'Twice as many: 6x2=12 hats.'},
+    {id:'sr14',top:null,tc:'#059669',txt:'There is 60ml of water in one bottle and 50ml in another. How much more water is in the first bottle?',opts:['5ml','10ml','15ml','20ml'],ans:1,exp:'60-50=10ml more.'},
+    {id:'sr15',top:null,tc:'#059669',txt:'In a box of chocolates there are 5 rows with 4 chocolates in each row. Sasha eats 3. How many are left?',opts:['14','15','17','20'],ans:2,exp:'5x4=20. 20-3=17.'}
+  ]
+},
+challenge: {
+  grammar: [
+    {id:'cg1',top:'Subjunctive',tc:'#4f46e5',txt:'Tick the correct subjunctive form.',sen:'The head teacher insisted that every pupil ______ present at the ceremony.',opts:['is','was','be','were'],ans:2,exp:'"Be" is the subjunctive — used after verbs of insistence. Year 6 GPS objective.'},
+    {id:'cg2',top:'Passive Voice',tc:'#7c3aed',txt:'Which is the passive voice version of: "The scientists discovered a new species of beetle."?',opts:['The scientists were discovering a new species.','A new species of beetle was discovered by the scientists.','A new species of beetle has been discovered.','The scientists had discovered a new species.'],ans:1,exp:'Passive: object becomes subject. "A new species" + "was discovered" + "by the scientists".'},
+    {id:'cg3',top:'Complex Punctuation',tc:'#0891b2',txt:'Which sentence is correctly punctuated?',opts:['Despite the heavy rain the match which had been postponed twice went ahead.','Despite the heavy rain, the match, which had been postponed twice, went ahead.','Despite the heavy rain, the match which had been postponed twice, went ahead.','Despite the heavy rain the match, which had been postponed twice went ahead.'],ans:1,exp:'Comma after fronted adverbial + commas around the relative clause.'},
+    {id:'cg4',top:'Formal Register',tc:'#d97706',txt:'Which sentence uses a formal register?',opts:["We're gonna need more time to sort this out.",'It is recommended that further investigation be carried out before a decision is reached.',"The team reckon they can get it done by Friday.",'Loads of people think the new policy is a bit unfair.'],ans:1,exp:'Formal register: passive voice, no contractions, precise vocabulary.'},
+    {id:'cg5',top:'Word Classes',tc:'#db2777',txt:'What word class is the underlined word?',sen:'The judge gave a surprisingly lenient sentence. (lenient)',opts:['Noun','Adverb','Adjective','Verb'],ans:2,exp:'"Lenient" is an adjective — it describes the noun "sentence".'},
+    {id:'cg6',top:'Modal Verbs',tc:'#059669',txt:'Which word is a modal verb?',sen:'You should complete your homework before watching television.',opts:['complete','watching','should','television'],ans:2,exp:'"Should" is a modal verb — it expresses obligation or advice.'},
+    {id:'cg7',top:'Relative Clauses',tc:'#0891b2',txt:'Which sentence contains a relative clause?',opts:['The dog barked loudly all night.','The dog, which had been barking all night, finally fell asleep.','The dog barked and then fell asleep.','The dog was very loud and kept everyone awake.'],ans:1,exp:'"which had been barking all night" is a relative clause — introduced by the relative pronoun "which".'},
+    {id:'cg8',top:'Subjunctive',tc:'#4f46e5',txt:'Which sentence uses the subjunctive correctly?',opts:['I suggest that he goes home immediately.','I suggest that he go home immediately.','I suggest that he went home immediately.','I suggest that he is going home immediately.'],ans:1,exp:'"Go" is the subjunctive form — after "suggest that", the verb stays in its base form without -s.'},
+    {id:'cg9',top:'Passive Voice',tc:'#7c3aed',txt:'Which sentence is written in the passive voice?',opts:['The chef cooked a delicious meal.','A delicious meal was cooked by the chef.','The chef is cooking a delicious meal.','The chef had cooked a delicious meal.'],ans:1,exp:'"A delicious meal was cooked by the chef" is passive — the object becomes the subject.'},
+    {id:'cg10',top:'Formal Register',tc:'#d97706',txt:'Which phrase would be most appropriate in a formal letter?',opts:['I am writing to let you know','Just wanted to say','FYI','Heads up'],ans:0,exp:'"I am writing to let you know" is formal — complete sentences and appropriate vocabulary.'},
+    {id:'cg11',top:'Complex Punctuation',tc:'#0891b2',txt:'Where should the semicolon go in this sentence?',sen:'The experiment was a success however the results were unexpected.',opts:['After "experiment"','After "success"','After "however"','After "results"'],ans:1,exp:'A semicolon joins two independent clauses: "The experiment was a success; however, the results were unexpected."'},
+    {id:'cg12',top:'Word Classes',tc:'#db2777',txt:'What word class is the underlined word?',sen:'The judge gave a surprisingly lenient sentence. (surprisingly)',opts:['Noun','Adverb','Adjective','Verb'],ans:1,exp:'"Surprisingly" is an adverb — it modifies the adjective "lenient".'},
+    {id:'cg13',top:'Modal Verbs',tc:'#059669',txt:'Which sentence expresses certainty using a modal verb?',opts:['She might come to the party.','She could come to the party.','She must be at the party by now.','She may come to the party.'],ans:2,exp:'"Must" expresses strong certainty. "Might", "could", and "may" express possibility.'},
+    {id:'cg14',top:'Relative Clauses',tc:'#0891b2',txt:'Which relative pronoun correctly completes the sentence?',sen:'The book ______ I borrowed from the library was fascinating.',opts:['who','whom','which','whose'],ans:2,exp:'"Which" is used for things (not people). "Who" and "whom" are used for people.'},
+    {id:'cg15',top:'Passive Voice',tc:'#7c3aed',txt:'Which is the correct passive voice version of: "The council approved the new plans."?',opts:['The new plans were approved by the council.','The new plans approved by the council.','The council was approved the new plans.','The new plans have approved by the council.'],ans:0,exp:'"The new plans were approved by the council." — object becomes subject, verb becomes "were approved".'}
+  ],
+  arithmetic: [
+    {id:'ca1',top:null,tc:'#0891b2',txt:'What is 3/8 of 480?',opts:['160','170','180','190'],ans:2,exp:'1/8 of 480=60. 3/8=60x3=180.'},
+    {id:'ca2',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'3.6 x ______ = 252',opts:['60','65','70','75'],ans:2,exp:'252/3.6=70.'},
+    {id:'ca3',top:null,tc:'#0891b2',txt:'What is 2/3 of 3,450?',opts:['1,150','2,300','2,450','1,725'],ans:1,exp:'1/3 of 3450=1150. 2/3=1150x2=2300.'},
+    {id:'ca4',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'346 + ______ = 500',opts:['144','154','164','174'],ans:1,exp:'500-346=154.'},
+    {id:'ca5',top:null,tc:'#0891b2',txt:'What is 4,736 + 2,895?',opts:['7,521','7,631','7,641','7,731'],ans:1,exp:'4736+2895=7631.'},
+    {id:'ca6',top:null,tc:'#0891b2',txt:'What is 10,004 - 3,867?',opts:['6,037','6,127','6,137','6,237'],ans:2,exp:'10004-3867=6137.'},
+    {id:'ca7',top:null,tc:'#0891b2',txt:'What is 24 x 35?',opts:['720','740','840','860'],ans:2,exp:'24x30=720, 24x5=120. 720+120=840.'},
+    {id:'ca8',top:null,tc:'#0891b2',txt:'What is 1,764 / 42?',opts:['38','40','42','44'],ans:2,exp:'1764/42=42.'},
+    {id:'ca9',top:null,tc:'#0891b2',txt:'What is 25% of 700?',opts:['150','175','200','225'],ans:1,exp:'25% = 1/4. 1/4 of 700=175.'},
+    {id:'ca10',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'______ / 15 = 48',opts:['620','700','720','740'],ans:2,exp:'48x15=720.'},
+    {id:'ca11',top:null,tc:'#0891b2',txt:'What is 14 squared?',opts:['168','184','196','204'],ans:2,exp:'14x14=196.'},
+    {id:'ca12',top:null,tc:'#0891b2',txt:'What is 2/5 of 3,250?',opts:['1,100','1,200','1,300','1,400'],ans:2,exp:'1/5 of 3250=650. 2/5=650x2=1300.'},
+    {id:'ca13',top:null,tc:'#0891b2',txt:'What is the missing number?',sen:'______ squared = 196',opts:['12','13','14','15'],ans:2,exp:'14x14=196. The missing number is 14.'},
+    {id:'ca14',top:null,tc:'#0891b2',txt:'What is 35% of 1,200?',opts:['360','380','400','420'],ans:3,exp:'10% of 1200=120. 35%=120x3.5=420.'},
+    {id:'ca15',top:null,tc:'#0891b2',txt:'What is 2/3 of 96?',opts:['48','56','64','72'],ans:2,exp:'1/3 of 96=32. 2/3=32x2=64.'}
+  ],
+  reasoning: [
+    {id:'cr1',top:null,tc:'#059669',txt:'Aliya buys 3 pencils (7p each), 1 ruler (15p), 2 notebooks (32p each). She pays with £2. How much change?',opts:['80p','90p','100p','110p'],ans:2,exp:'21+15+64=100p. Change from 200p=100p.'},
+    {id:'cr2',top:null,tc:'#059669',txt:'In a survey of 1,200 pupils: 35% chose Maths, 1/4 chose English, rest chose Science. How many chose Science?',opts:['360','420','480','540'],ans:2,exp:'420+300=720. Science=1200-720=480.'},
+    {id:'cr3',top:null,tc:'#059669',txt:'A school orders 48 boxes of 36 pencils. They use 875 in autumn and 643 in spring. How many remain?',opts:['190','200','210','220'],ans:2,exp:'48x36=1728. 1728-875-643=210.'},
+    {id:'cr4',top:null,tc:'#059669',txt:'A rectangular field is 240m by 175m. What is the perimeter?',opts:['415m','750m','830m','960m'],ans:2,exp:'Perimeter=2x(240+175)=2x415=830m.'},
+    {id:'cr5',top:null,tc:'#059669',txt:'There are 156 children in a school. 1/3 walk to school. Half of the rest come by car. How many come by bus?',opts:['26','52','78','104'],ans:1,exp:'1/3 of 156=52 walk. 156-52=104 rest. 1/2 of 104=52 by car. 104-52=52 by bus.'},
+    {id:'cr6',top:null,tc:'#059669',txt:'A TV show starts at 6:45pm and lasts 1 hour 25 minutes. What time does it finish?',opts:['7:55pm','8:00pm','8:05pm','8:10pm'],ans:3,exp:'6:45 + 1 hour = 7:45. 7:45 + 25 minutes = 8:10pm.'},
+    {id:'cr7',top:null,tc:'#059669',txt:'Daniel has 2 rides on a rollercoaster (25p each) and 1 ride on a Ferris wheel (10p). How much does he spend?',opts:['50p','55p','60p','65p'],ans:2,exp:'2x25p=50p. 50+10=60p.'},
+    {id:'cr8',top:null,tc:'#059669',txt:'Sam reads 9 pages of a book. He has 3 pages left. What fraction of the book has he read?',opts:['1/4','1/3','3/4','2/3'],ans:2,exp:'Total pages=9+3=12. Fraction read=9/12=3/4.'},
+    {id:'cr9',top:null,tc:'#059669',txt:'50 fish live in a lake. Dad catches 9, Mum catches 5, Jack catches 7, Jenny catches 3. How many fish are left?',opts:['24','26','28','30'],ans:1,exp:'9+5+7+3=24 caught. 50-24=26 left.'},
+    {id:'cr10',top:null,tc:'#059669',txt:'Anna\'s mum gives her £1. She spends 15p on a book and 10p on a toy. How much does she have left?',opts:['65p','70p','75p','80p'],ans:2,exp:'15+10=25p spent. 100-25=75p left.'},
+    {id:'cr11',top:null,tc:'#059669',txt:'Sara bakes 7 trays of 5 muffins. She sells 16 and eats 5. How many muffins does she have left?',opts:['10','12','14','16'],ans:2,exp:'7x5=35. 35-16-5=14.'},
+    {id:'cr12',top:null,tc:'#059669',txt:'A rectangle has a perimeter of 54cm. Its length is 16cm. What is its width?',opts:['9cm','10cm','11cm','12cm'],ans:2,exp:'54=2x(16+w). 27=16+w. w=11cm.'},
+    {id:'cr13',top:null,tc:'#059669',txt:'Lego cards come in packs of 5. Sara bought 7 packs. How many cards does she have?',opts:['30','35','40','45'],ans:1,exp:'7x5=35 cards.'},
+    {id:'cr14',top:null,tc:'#059669',txt:'A cinema has 24 rows of 15 seats. 247 seats were sold on Saturday. How many were empty?',opts:['93','103','113','123'],ans:2,exp:'24x15=360. 360-247=113 empty.'},
+    {id:'cr15',top:null,tc:'#059669',txt:'In a box of chocolates there are 5 rows with 4 chocolates in each row. Sasha eats 3. How many are left?',opts:['14','15','17','20'],ans:2,exp:'5x4=20. 20-3=17.'}
+  ]
+}
+};
+
+var TIPS={
+'Conjunctions':'Practise: and, but, or, so, because, when, if, although.',
+'Verb Tense':'Key irregular verbs: run-ran, go-went, see-saw, take-took.',
+'Punctuation':'? for questions, ! for exclamations, . for statements.',
+'Commas':'After fronted adverbials and around relative clauses.',
+'Word Classes':'Noun=thing, Verb=action, Adjective=describes noun, Adverb=describes verb.',
+'Apostrophes':'Two uses: possession (Sara\'s bag) and contraction (don\'t = do not).',
+'Sentence Types':'Statements end with ., questions with ?, commands give instructions.',
+'Prefixes':'Common prefixes: un- (not), re- (again), pre- (before), mis- (wrongly).',
+'Suffixes':'Common suffixes: -ly (adverb), -ness (noun), -ful (adjective), -less (without).',
+'Subjunctive':'After: insist, suggest, recommend + "that". E.g. "I suggest that he be present."',
+'Passive Voice':'Object + was/were + past participle + by + agent.',
+'Complex Punctuation':'Read aloud — your voice pauses at commas. Relative clauses need commas on both sides.',
+'Formal Register':'No contractions, no slang. Use passive voice and precise vocabulary.',
+'Modal Verbs':'Must=certainty, should=advice, might/may/could=possibility, will=future.',
+'Relative Clauses':'"Who" for people, "which" for things, "whose" for possession.'};
+
+// ── Random selection ───────────────────────────────────────────────────────
+function pickRandom(arr, n) {
+  var s = arr.slice().sort(function(){ return Math.random() - 0.5; });
+  return s.slice(0, n);
+}
+function buildQuiz(paper) {
+  var b = BANK[paper];
+  var g = pickRandom(b.grammar, 4);
+  var a = pickRandom(b.arithmetic, 3);
+  var r = pickRandom(b.reasoning, 3);
+  function lbl(q, sec) { var o = {}; Object.keys(q).forEach(function(k){ o[k]=q[k]; }); o.sec=sec; return o; }
+  return g.map(function(q){ return lbl(q,'Grammar & Punctuation'); })
+    .concat(a.map(function(q){ return lbl(q,'Arithmetic'); }))
+    .concat(r.map(function(q){ return lbl(q,'Reasoning'); }));
+}
+
+// ── Quiz state ─────────────────────────────────────────────────────────────
+var selP = 'standard', qs = [], curQ = 0, ans = [], ansd = false;
+
+function selPaper(p, btn) {
+  selP = p;
+  document.querySelectorAll('.pbtn').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+
+function startQ() {
+  qs = buildQuiz(selP);
+  ans = qs.map(function(){ return {done:false,ok:false,ch:-1}; });
+  curQ = 0;
+  document.getElementById('qwelcome').style.display='none';
+  document.getElementById('qresults').style.display='none';
+  document.getElementById('qquestion').style.display='block';
+  renderQ();
+}
+
+function renderQ() {
+  var q=qs[curQ], a=ans[curQ];
+  ansd = a.done;
+  var L=['A','B','C','D'];
+  var tt = q.top ? '<span class="qtag" style="background:'+q.tc+'22;color:'+q.tc+';">'+q.top+'</span>' : '';
+  var sh = q.sen ? '<div class="qsen">'+q.sen+'</div>' : '';
+  var oh = q.opts.map(function(o,i){
+    var c='';
+    if(a.done){ if(i===q.ans) c='ok'; else if(i===a.ch&&i!==q.ans) c='wr'; }
+    return '<button class="obtn '+c+'" onclick="chOpt('+i+')" '+(a.done?'disabled':'')+' id="o'+i+'"><div class="ol">'+L[i]+'</div><div>'+o+'</div></button>';
+  }).join('');
+  var fh = a.done ? '<div class="fb '+(a.ok?'ok':'wr')+' on"><strong>'+(a.ok?'✅ Correct!':'❌ Not quite.')+'</strong>'+q.exp+'</div>' : '<div class="fb" id="fb"></div>';
+  document.getElementById('qcon').innerHTML = '<div class="qcard"><div class="qmeta"><span class="qnum">Q'+(curQ+1)+'/10</span><span class="qsec">'+q.sec+'</span>'+tt+'</div><div class="qtxt">'+q.txt+'</div>'+sh+'<div class="opts">'+oh+'</div>'+fh+'</div>';
+  document.getElementById('qnL').innerHTML = curQ>0 ? '<button class="btn bo" onclick="prevQ()">← Prev</button>' : '';
+  document.getElementById('qnR').innerHTML = a.done ? (curQ<qs.length-1 ? '<button class="btn bp" onclick="nextQ()">Next →</button>' : '<button class="btn bp" onclick="showRes()">Results 🎉</button>') : '';
+}
+
+function chOpt(i) {
+  if(ansd) return;
+  var q=qs[curQ], ok=i===q.ans;
+  ans[curQ]={done:true,ok:ok,ch:i}; ansd=true;
+  q.opts.forEach(function(_,x){
+    var b=document.getElementById('o'+x); if(!b) return;
+    b.disabled=true;
+    if(x===q.ans) b.className='obtn ok';
+    else if(x===i&&!ok) b.className='obtn wr';
+  });
+  var f=document.getElementById('fb');
+  if(f){ f.className='fb '+(ok?'ok':'wr')+' on'; f.innerHTML='<strong>'+(ok?'✅ Correct!':'❌ Not quite.')+'</strong>'+q.exp; }
+  document.getElementById('qnR').innerHTML = curQ<qs.length-1 ? '<button class="btn bp" onclick="nextQ()">Next →</button>' : '<button class="btn bp" onclick="showRes()">Results 🎉</button>';
+}
+
+function nextQ(){ if(curQ<qs.length-1){ curQ++; renderQ(); } }
+function prevQ(){ if(curQ>0){ curQ--; renderQ(); } }
+
+function showRes() {
+  document.getElementById('qquestion').style.display='none';
+  document.getElementById('qresults').style.display='block';
+  var tot=ans.filter(function(a){ return a.ok; }).length;
+  var pct=Math.round(tot/qs.length*100);
+  var cc,gr,su;
+  if(pct>=80){cc='#16a34a';gr='Excellent! 🌟';su='Outstanding — you really know your stuff!';}
+  else if(pct>=60){cc='#4f46e5';gr='Good job! 👍';su='Solid — a little more practice and you\'ll be excellent!';}
+  else if(pct>=40){cc='#d97706';gr='Keep going! 💪';su='Developing well — focus on the topics below.';}
+  else{cc='#dc2626';gr="Don't give up! 🔥";su='Every expert was once a beginner — review the suggestions!';}
+  var ci=document.getElementById('circ'); ci.style.borderColor=cc; ci.style.color=cc;
+  document.getElementById('cbig').textContent=tot;
+  document.getElementById('rtitle').textContent=gr;
+  document.getElementById('rsub').textContent=su;
+  var gQs=qs.filter(function(q){ return q.sec==='Grammar & Punctuation'; });
+  var aQs=qs.filter(function(q){ return q.sec==='Arithmetic'; });
+  var rQs=qs.filter(function(q){ return q.sec==='Reasoning'; });
+  function sc(arr){ return arr.reduce(function(s,q){ return s+(ans[qs.indexOf(q)].ok?1:0); },0); }
+  var gS=sc(gQs), aS=sc(aQs), rS=sc(rQs);
+  document.getElementById('ssco').innerHTML=
+    '<div class="ssc" style="background:#f3e8ff;"><div class="sv2" style="color:#7c3aed;">'+gS+'/'+gQs.length+'</div><div class="sl2" style="color:#7c3aed;">Grammar</div><div style="font-size:.75rem;color:#7c3aed;">'+Math.round(gS/gQs.length*100)+'%</div></div>'+
+    '<div class="ssc" style="background:#e0f2fe;"><div class="sv2" style="color:#0891b2;">'+aS+'/'+aQs.length+'</div><div class="sl2" style="color:#0891b2;">Arithmetic</div><div style="font-size:.75rem;color:#0891b2;">'+Math.round(aS/aQs.length*100)+'%</div></div>'+
+    '<div class="ssc" style="background:#dcfce7;"><div class="sv2" style="color:#059669;">'+rS+'/'+rQs.length+'</div><div class="sl2" style="color:#059669;">Reasoning</div><div style="font-size:.75rem;color:#059669;">'+Math.round(rS/rQs.length*100)+'%</div></div>';
+  document.getElementById('rlist').innerHTML=qs.map(function(q,i){
+    var a=ans[i], ch=a.ch>=0?q.opts[a.ch]:'—';
+    return '<div class="rrow '+(a.ok?'ok':'wr')+'"><div>'+(a.ok?'✅':'❌')+'</div><div><strong>Q'+(i+1)+': '+q.sec+(q.top?' — '+q.top:'')+'</strong><span>'+(a.ok?'Correct':'Your: "'+ch+'" · Correct: "'+q.opts[q.ans]+'"')+'</span></div></div>';
+  }).join('');
+  var gt={};
+  gQs.forEach(function(q){
+    if(!q.top) return;
+    var i=qs.indexOf(q);
+    if(!gt[q.top]) gt[q.top]={ok:0,tot:0,c:q.tc};
+    gt[q.top].tot++;
+    if(ans[i].ok) gt[q.top].ok++;
+  });
+  document.getElementById('tbars').innerHTML=Object.keys(gt).map(function(t){
+    var d=gt[t], p=Math.round(d.ok/d.tot*100);
+    return '<div class="tbr"><div class="tbh"><span class="tbn" style="color:'+d.c+'">'+t+'</span><span class="tbs">'+d.ok+'/'+d.tot+' · '+p+'%</span></div><div class="tbb"><div class="tbf" style="width:'+p+'%;background:'+d.c+';"></div></div></div>';
+  }).join('');
+  var sg=[];
+  if(gS/gQs.length<.6) sg.push({i:'🔴',t:'Grammar ('+Math.round(gS/gQs.length*100)+'%) — Review the grammar topics above.'});
+  if(aS/aQs.length<.6) sg.push({i:'🔴',t:'Arithmetic ('+Math.round(aS/aQs.length*100)+'%) — Practise fractions, missing numbers, times tables.'});
+  if(rS/rQs.length<.6) sg.push({i:'🔴',t:'Reasoning ('+Math.round(rS/rQs.length*100)+'%) — Read problems twice. Write a number sentence first.'});
+  Object.keys(gt).forEach(function(t){ var d=gt[t], p=d.ok/d.tot; if(p<1) sg.push({i:p<.5?'🟡':'🟢',t:t+': '+(TIPS[t]||'')}); });
+  if(!sg.length) sg.push({i:'🌟',t:'Perfect score! Try again for a new random set of questions!'});
+  document.getElementById('sugs').innerHTML=sg.map(function(s){ return '<div class="sugi"><span>'+s.i+'</span><span>'+s.t+'</span></div>'; }).join('');
+
+  // Save to Firebase
+  var gd=gQs.map(function(q){ return {topic:q.top||'',correct:ans[qs.indexOf(q)].ok}; });
+  var entry={
+    date: new Date().toISOString().split('T')[0],
+    sessionType: 'quiz',
+    paper: selP,
+    grammar: gS,
+    grammarMax: gQs.length,
+    grammarDetails: gd,
+    arithmetic: aS,
+    arithmeticMax: aQs.length,
+    reasoning: rS,
+    reasoningMax: rQs.length,
+    notes: 'Auto-saved from quiz',
+    savedAt: new Date().toISOString()
+  };
+
+  setBanner('sy', '🔄 Saving score to cloud…', false);
+  document.getElementById('connBanner').classList.remove('hid');
+
+  DB.save(entry).then(function(fid) {
+    entry._fid = fid;
+    sess.push(entry);
+    sess.sort(function(a,b){ return a.date.localeCompare(b.date); });
+    connected = true;
+    setBanner('ok', '✅ Score saved to cloud! Open Dashboard on any device to see it.', false);
+    setTimeout(function(){ document.getElementById('connBanner').classList.add('hid'); }, 5000);
+    updStats();
+    document.getElementById('sbanner').style.display='flex';
+    toast('☁️ Score synced to cloud!');
+  }).catch(function(e) {
+    var msg = e && e.message ? e.message : String(e);
+    var hint = msg.indexOf('403') !== -1 || msg.indexOf('PERMISSION') !== -1
+      ? '❌ Firebase Rules blocking save. Go to Firebase Console → Firestore → Rules → publish: allow read, write: if true'
+      : '❌ Could not save to cloud: ' + msg;
+    setBanner('er', hint, true);
+    toast('⚠️ Could not sync. Check connection banner for details.');
+  });
+}
+
+function retryQ(){ document.getElementById('qresults').style.display='none'; document.getElementById('sbanner').style.display='none'; startQ(); }
+function goHome(){ document.getElementById('qresults').style.display='none'; document.getElementById('qquestion').style.display='none'; document.getElementById('sbanner').style.display='none'; document.getElementById('qwelcome').style.display='block'; }
+
+// ── Dashboard ──────────────────────────────────────────────────────────────
+var pCh,sCh,gmCh,chMode='ov',chInit=false;
+
+function initCharts(){
+  if(chInit) return; chInit=true;
+  pCh=new Chart(document.getElementById('pChart').getContext('2d'),{type:'line',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:9,font:{size:9}}}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:9}},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:8}},grid:{display:false}}}}});
+  sCh=new Chart(document.getElementById('sChart').getContext('2d'),{type:'bar',data:{labels:['🔤 Grammar','🔢 Maths','➕ Arith','🧠 Reason'],datasets:[{label:'Avg %',data:[0,0,0,0],backgroundColor:['rgba(124,58,237,.75)','rgba(234,88,12,.75)','rgba(8,145,178,.75)','rgba(5,150,105,.75)'],borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:9}},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
+  gmCh=new Chart(document.getElementById('gmChart').getContext('2d'),{type:'doughnut',data:{labels:['🔤 Grammar','🔢 Maths'],datasets:[{data:[0,0],backgroundColor:['rgba(124,58,237,.8)','rgba(234,88,12,.8)'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:11,font:{size:10}}},tooltip:{callbacks:{label:function(c){return ' '+c.label+': '+c.parsed+'% avg';}}}},cutout:'60%'}});
+}
+
+function swCh(m,btn){ chMode=m; document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); }); btn.classList.add('on'); updPChart(); }
+
+function gP(s){ return s.grammarMax?s.grammar/s.grammarMax*100:s.grammar/5*100; }
+function aP(s){ return s.arithmeticMax?s.arithmetic/s.arithmeticMax*100:s.arithmetic/3*100; }
+function rP(s){ return s.reasoningMax?s.reasoning/s.reasoningMax*100:s.reasoning/2*100; }
+function mP(s){ return (aP(s)+rP(s))/2; }
+function oP(s){ return (gP(s)+aP(s)+rP(s))/3; }
+function av(a){ return a.length?a.reduce(function(x,y){ return x+y; },0)/a.length:0; }
+
+function updPChart(){
+  if(!sess.length) return;
+  var sr=sess.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var lb=sr.map(function(s){ return fmtD(s.date); });
+  if(chMode==='ov'){
+    pCh.data.labels=lb;
+    pCh.data.datasets=[{label:'Overall %',data:sr.map(function(s){ return Math.round(oP(s)); }),borderColor:'#4f46e5',backgroundColor:'rgba(79,70,229,.1)',tension:.3,fill:true,pointRadius:4,pointBackgroundColor:'#4f46e5'}];
+  } else if(chMode==='gr'){
+    pCh.data.labels=lb;
+    pCh.data.datasets=[{label:'Grammar %',data:sr.map(function(s){ return Math.round(gP(s)); }),borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.1)',tension:.3,fill:true,pointRadius:4,pointBackgroundColor:'#7c3aed'}];
+  } else {
+    pCh.data.labels=lb;
+    pCh.data.datasets=[
+      {label:'Maths %',data:sr.map(function(s){ return Math.round(mP(s)); }),borderColor:'#ea580c',backgroundColor:'rgba(234,88,12,.1)',tension:.3,fill:true,pointRadius:4,pointBackgroundColor:'#ea580c'},
+      {label:'Arith %',data:sr.map(function(s){ return Math.round(aP(s)); }),borderColor:'#0891b2',backgroundColor:'transparent',tension:.3,pointRadius:3,pointBackgroundColor:'#0891b2'},
+      {label:'Reason %',data:sr.map(function(s){ return Math.round(rP(s)); }),borderColor:'#059669',backgroundColor:'transparent',tension:.3,pointRadius:3,pointBackgroundColor:'#059669'}
+    ];
+  }
+  pCh.update();
+}
+
+function updSChart(){
+  if(!sess.length) return;
+  var g=av(sess.map(gP)),m=av(sess.map(mP)),a=av(sess.map(aP)),r=av(sess.map(rP));
+  sCh.data.datasets[0].data=[Math.round(g),Math.round(m),Math.round(a),Math.round(r)]; sCh.update();
+  gmCh.data.datasets[0].data=[Math.round(g),Math.round(m)]; gmCh.update();
+}
+
+function updStats(){
+  var n=sess.length;
+  document.getElementById('totS').textContent=n+(n===1?' session':' sessions');
+  if(!n){ ['sOv','sGr','sMa','sAr','sRe'].forEach(function(id){ document.getElementById(id).textContent='—'; }); return; }
+  document.getElementById('sOv').textContent=Math.round(av(sess.map(oP)))+'%';
+  document.getElementById('sGr').textContent=Math.round(av(sess.map(gP)))+'%';
+  document.getElementById('sMa').textContent=Math.round(av(sess.map(mP)))+'%';
+  document.getElementById('sAr').textContent=Math.round(av(sess.map(aP)))+'%';
+  document.getElementById('sRe').textContent=Math.round(av(sess.map(rP)))+'%';
+}
+
+function mkSug(pct,name,tips,subs){
+  var lv,ic,lb;
+  if(pct<50){lv='hi';ic='🔴';lb='Needs urgent focus';}
+  else if(pct<75){lv='me';ic='🟡';lb='Needs more practice';}
+  else{lv='lo';ic='🟢';lb='Doing well!';}
+  var f=subs.slice(0,pct<50?4:2).join(', ');
+  return '<div class="si '+lv+'"><div style="font-size:.9rem;flex-shrink:0;">'+ic+'</div><div><strong>'+name+' — '+Math.round(pct)+'% · '+lb+'</strong><span>Focus: '+f+'.<br>'+tips+'</span></div></div>';
+}
+
+function updSugs(){
+  var ge=document.getElementById('gSug'), me=document.getElementById('mSug');
+  if(!sess.length){ ge.innerHTML='<div class="nd">Complete a quiz to see suggestions.</div>'; me.innerHTML='<div class="nd">Complete a quiz to see suggestions.</div>'; return; }
+  var g=av(sess.map(gP)), a=av(sess.map(aP)), r=av(sess.map(rP)), m=av(sess.map(mP));
+  ge.innerHTML=mkSug(g,'Grammar & Punctuation','Practise word classes, punctuation rules, apostrophes, and sentence types.',['apostrophes & contractions','punctuation marks','word classes','verb tense','conjunctions','subjunctive mood','passive voice','modal verbs']);
+  me.innerHTML=mkSug(m,'🔢 Maths Overall','Focus on Arithmetic and Reasoning below.',['Arithmetic','Reasoning'])+mkSug(a,'Arithmetic','Drill times tables. Use fraction strips. Practise inverse operations.',['fractions','missing numbers','multiplication & division','3 and 4-digit arithmetic','percentages'])+mkSug(r,'Reasoning','Read problems twice. Write a number sentence before calculating.',['multi-step problems','money calculations','fraction problems','perimeter & area','time problems']);
+}
+
+function updTable(){
+  var tb=document.getElementById('hBody');
+  if(!sess.length){ tb.innerHTML='<tr><td colspan="10" class="nd">No sessions yet — complete a quiz!</td></tr>'; return; }
+  var sr=sess.slice().sort(function(a,b){ return b.date.localeCompare(a.date); });
+  tb.innerHTML=sr.map(function(s){
+    var g=Math.round(gP(s)),a=Math.round(aP(s)),r=Math.round(rP(s)),m=Math.round(mP(s)),o=Math.round(oP(s));
+    var gr,bc;
+    if(o>=80){gr='Excellent';bc='bgn';}else if(o>=60){gr='Good';bc='bbl';}else if(o>=40){gr='Developing';bc='byw';}else{gr='Needs Work';bc='brd';}
+    var gl=s.grammarMax?s.grammar+'/'+s.grammarMax:s.grammar+'/5';
+    var al=s.arithmeticMax?s.arithmetic+'/'+s.arithmeticMax:s.arithmetic+'/3';
+    var rl=s.reasoningMax?s.reasoning+'/'+s.reasoningMax:s.reasoning+'/2';
+    var tl=s.sessionType==='quiz'?'<span class="badge bor">🎮 Quiz</span>':(s.paper==='ks2upper'?'<span class="badge bpu">⭐ KS2 Upper</span>':'<span class="badge bbl">📄 KS2 Lower</span>');
+    var delBtn=s._fid?'<button class="db" onclick="delE(\''+s._fid+'\')" title="Delete">🗑</button>':'';
+    return '<tr><td>'+fmtD(s.date)+'</td><td>'+tl+'</td><td style="color:var(--pu);font-weight:600;">'+gl+' <small style="color:var(--g4)">('+g+'%)</small></td><td style="color:var(--cy);font-weight:600;">'+al+' <small style="color:var(--g4)">('+a+'%)</small></td><td style="color:var(--te);font-weight:600;">'+rl+' <small style="color:var(--g4)">('+r+'%)</small></td><td style="color:var(--or);font-weight:700;">'+m+'%</td><td><strong>'+o+'%</strong></td><td><span class="badge '+bc+'">'+gr+'</span></td><td style="font-size:.73rem;color:var(--g6);">'+(s.notes||'—')+'</td><td>'+delBtn+'</td></tr>';
+  }).join('');
+}
+
+function showP(id, btn) {
+  document.querySelectorAll('.pnl').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.ntab').forEach(function(t){ t.classList.remove('on'); });
+  document.getElementById('pnl-'+id).classList.add('on');
+  if(btn) btn.classList.add('on');
+  if(id==='dash') refreshD();
+}
+
+function refreshD(){
+  setBanner('sy', '🔄 Loading sessions from cloud…', false);
+  document.getElementById('connBanner').classList.remove('hid');
+  DB.loadAll().then(function(data){
+    sess=data; sess.sort(function(a,b){ return a.date.localeCompare(b.date); });
+    connected=true;
+    setBanner('ok', '✅ Connected — all sessions loaded from cloud', false);
+    setTimeout(function(){ document.getElementById('connBanner').classList.add('hid'); }, 4000);
+    initCharts(); updStats(); updTable(); updSugs(); updPChart(); updSChart();
+    toast('✅ Refreshed from cloud.');
+  }).catch(function(e){
+    var msg = e && e.message ? e.message : String(e);
+    setBanner('er', '❌ Could not load from cloud: ' + msg + '. Tap Retry.', true);
+    toast('⚠️ Could not refresh.');
+  });
+}
+
+// ── Log score ──────────────────────────────────────────────────────────────
+function swLM(v,btn){
+  document.querySelectorAll('.lp').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.mb').forEach(function(b){ b.classList.remove('on'); });
+  document.getElementById('lp-'+v).classList.add('on'); btn.classList.add('on');
+}
+
+function upBar(s){
+  var sc=parseFloat(document.getElementById('q'+s+'S').value)||0;
+  var mx=parseFloat(document.getElementById('q'+s+'M').value)||1;
+  var p=Math.min(100,Math.round(sc/mx*100));
+  document.getElementById('q'+s+'B').style.width=p+'%';
+  document.getElementById('q'+s+'P').textContent=p+'%';
+  document.getElementById('q'+s+'O').textContent='/ '+mx;
+}
+
+function saveEntry(entry, btnId, clearFn) {
+  var btn=document.getElementById(btnId); if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+  setBanner('sy', '🔄 Saving to cloud…', false);
+  document.getElementById('connBanner').classList.remove('hid');
+  DB.save(entry).then(function(fid){
+    entry._fid=fid; sess.push(entry); sess.sort(function(a,b){ return a.date.localeCompare(b.date); });
+    connected=true;
+    setBanner('ok', '✅ Score saved to cloud!', false);
+    setTimeout(function(){ document.getElementById('connBanner').classList.add('hid'); }, 4000);
+    updStats(); toast('☁️ Saved to cloud!');
+    if(clearFn) clearFn();
+    if(btn){ btn.disabled=false; btn.textContent='+ Add Score'; }
+  }).catch(function(e){
+    var msg = e && e.message ? e.message : String(e);
+    setBanner('er', '❌ Could not save: ' + msg + '. Check connection and tap Retry.', true);
+    toast('⚠️ Could not save to cloud.');
+    if(btn){ btn.disabled=false; btn.textContent='+ Add Score'; }
+  });
+}
+
+function addPaper(){
+  var date=document.getElementById('eDate').value;
+  var paper=document.getElementById('ePaper').value;
+  var g=parseInt(document.getElementById('eGr').value);
+  var gm=parseInt(document.getElementById('eGrM').value)||5;
+  var a=parseInt(document.getElementById('eAr').value);
+  var am=parseInt(document.getElementById('eArM').value)||3;
+  var r=parseInt(document.getElementById('eRe').value);
+  var rm=parseInt(document.getElementById('eReM').value)||2;
+  var notes=document.getElementById('eNotes').value.trim();
+  if(!date){toast('Please select a date.');return;}
+  if(isNaN(g)||g<0||g>gm){toast('Grammar must be 0–'+gm+'.');return;}
+  if(isNaN(a)||a<0||a>am){toast('Arithmetic must be 0–'+am+'.');return;}
+  if(isNaN(r)||r<0||r>rm){toast('Reasoning must be 0–'+rm+'.');return;}
+  var entry={date:date,sessionType:'paper',paper:paper,grammar:g,grammarMax:gm,arithmetic:a,arithmeticMax:am,reasoning:r,reasoningMax:rm,notes:notes,savedAt:new Date().toISOString()};
+  saveEntry(entry,'btnP',function(){ ['eGr','eAr','eRe','eNotes'].forEach(function(id){ document.getElementById(id).value=''; }); });
+}
+
+function addQuiz(){
+  var date=document.getElementById('qDate').value;
+  var paper=document.getElementById('qPaper').value;
+  var g=parseFloat(document.getElementById('qGS').value);
+  var gm=parseFloat(document.getElementById('qGM').value)||5;
+  var a=parseFloat(document.getElementById('qAS').value);
+  var am=parseFloat(document.getElementById('qAM').value)||3;
+  var r=parseFloat(document.getElementById('qRS').value);
+  var rm=parseFloat(document.getElementById('qRM').value)||2;
+  var notes=document.getElementById('qNotes').value.trim();
+  if(!date){toast('Please select a date.');return;}
+  if(isNaN(g)||g<0||g>gm){toast('Grammar must be 0–'+gm+'.');return;}
+  if(isNaN(a)||a<0||a>am){toast('Arithmetic must be 0–'+am+'.');return;}
+  if(isNaN(r)||r<0||r>rm){toast('Reasoning must be 0–'+rm+'.');return;}
+  var entry={date:date,sessionType:'quiz',paper:paper,grammar:g,grammarMax:gm,arithmetic:a,arithmeticMax:am,reasoning:r,reasoningMax:rm,notes:notes,savedAt:new Date().toISOString()};
+  saveEntry(entry,'btnQ',function(){
+    ['qGS','qAS','qRS','qNotes'].forEach(function(id){ document.getElementById(id).value=''; });
+    ['G','A','R'].forEach(function(s){ document.getElementById('q'+s+'B').style.width='0%'; document.getElementById('q'+s+'P').textContent='0%'; });
+  });
+}
+
+function delE(fid){
+  if(!fid){toast('No cloud ID found.');return;}
+  if(!confirm('Delete this session from the cloud?')) return;
+  DB.del(fid).then(function(){
+    sess=sess.filter(function(s){ return s._fid!==fid; });
+    updStats(); updTable(); updSugs(); updPChart(); updSChart(); toast('Deleted.');
+  }).catch(function(){ toast('⚠️ Could not delete.'); });
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function fmtD(d){
+  var parts=d.split('-');
+  var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return parseInt(parts[2])+' '+mn[parseInt(parts[1])-1]+' '+parts[0];
+}
+function toast(msg){
+  var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  setTimeout(function(){ t.classList.remove('on'); },3500);
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  var td = new Date().toISOString().split('T')[0];
+  document.getElementById('eDate').value = td;
+  document.getElementById('qDate').value = td;
+  initApp();
+});
+</script>
+</body>
+</html>
