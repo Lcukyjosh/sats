@@ -19,4 +19,3 @@ function createPaper() {
 
   document.getElementById("question").innerHTML = paper;
 }
-
