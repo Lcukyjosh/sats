@@ -1,0 +1,242 @@
+[
+  {
+    "id": "time_hours_to_minutes",
+    "topic": "time",
+    "difficulty": "easy",
+    "generator": "timeHoursToMinutes",
+    "source_question": "1",
+    "enabled": true
+  },
+  {
+    "id": "decimal_to_fraction",
+    "topic": "fractions_decimals",
+    "difficulty": "easy",
+    "generator": "decimalToFraction",
+    "source_question": "2",
+    "enabled": true
+  },
+  {
+    "id": "order_decimals",
+    "topic": "place_value",
+    "difficulty": "medium",
+    "generator": "orderDecimals",
+    "source_question": "3,14",
+    "enabled": true
+  },
+  {
+    "id": "estimate_metric_length",
+    "topic": "measurement",
+    "difficulty": "easy",
+    "generator": "estimateMetricLength",
+    "source_question": "4",
+    "enabled": true
+  },
+  {
+    "id": "operations_order",
+    "topic": "order_of_operations",
+    "difficulty": "medium",
+    "generator": "operationsOrder",
+    "source_question": "5",
+    "enabled": true
+  },
+  {
+    "id": "isosceles_missing_angle",
+    "topic": "geometry_angles",
+    "difficulty": "medium",
+    "generator": "isoscelesMissingAngle",
+    "source_question": "6",
+    "enabled": true
+  },
+  {
+    "id": "fraction_to_ratio",
+    "topic": "ratio",
+    "difficulty": "medium",
+    "generator": "fractionToRatio",
+    "source_question": "7",
+    "enabled": true
+  },
+  {
+    "id": "elapsed_time",
+    "topic": "time",
+    "difficulty": "medium",
+    "generator": "elapsedTime",
+    "source_question": "8",
+    "enabled": true
+  },
+  {
+    "id": "decimal_digit_value",
+    "topic": "place_value",
+    "difficulty": "easy",
+    "generator": "decimalDigitValue",
+    "source_question": "9",
+    "enabled": true
+  },
+  {
+    "id": "difference_and_total",
+    "topic": "money_algebra",
+    "difficulty": "medium",
+    "generator": "differenceAndTotal",
+    "source_question": "10",
+    "enabled": true
+  },
+  {
+    "id": "column_addition",
+    "topic": "addition",
+    "difficulty": "medium",
+    "generator": "columnAddition",
+    "source_question": "11a",
+    "enabled": true
+  },
+  {
+    "id": "column_subtraction",
+    "topic": "subtraction",
+    "difficulty": "medium",
+    "generator": "columnSubtraction",
+    "source_question": "11b",
+    "enabled": true
+  },
+  {
+    "id": "long_multiplication",
+    "topic": "multiplication",
+    "difficulty": "medium",
+    "generator": "longMultiplication",
+    "source_question": "11c",
+    "enabled": true
+  },
+  {
+    "id": "short_division",
+    "topic": "division",
+    "difficulty": "medium",
+    "generator": "shortDivision",
+    "source_question": "11d",
+    "enabled": true
+  },
+  {
+    "id": "fraction_add_same_denominator",
+    "topic": "fractions",
+    "difficulty": "easy",
+    "generator": "fractionAddSameDenominator",
+    "source_question": "12a",
+    "enabled": true
+  },
+  {
+    "id": "fraction_add_unlike_denominators",
+    "topic": "fractions",
+    "difficulty": "medium",
+    "generator": "fractionAddUnlikeDenominators",
+    "source_question": "12b",
+    "enabled": true
+  },
+  {
+    "id": "fraction_subtract_unlike_denominators",
+    "topic": "fractions",
+    "difficulty": "medium",
+    "generator": "fractionSubtractUnlikeDenominators",
+    "source_question": "12c-d",
+    "enabled": true
+  },
+  {
+    "id": "arithmetic_sequence",
+    "topic": "sequences",
+    "difficulty": "easy",
+    "generator": "arithmeticSequence",
+    "source_question": "13a-b",
+    "enabled": true
+  },
+  {
+    "id": "growing_difference_sequence",
+    "topic": "sequences",
+    "difficulty": "medium",
+    "generator": "growingDifferenceSequence",
+    "source_question": "13c",
+    "enabled": true
+  },
+  {
+    "id": "alternating_sequence",
+    "topic": "sequences",
+    "difficulty": "medium",
+    "generator": "alternatingSequence",
+    "source_question": "13d",
+    "enabled": true
+  },
+  {
+    "id": "geometric_sequence",
+    "topic": "sequences",
+    "difficulty": "medium",
+    "generator": "geometricSequence",
+    "source_question": "13e",
+    "enabled": true
+  },
+  {
+    "id": "mean_range",
+    "topic": "statistics",
+    "difficulty": "medium",
+    "generator": "meanAndRange",
+    "source_question": "17",
+    "enabled": true
+  },
+  {
+    "id": "simplify_ratio",
+    "topic": "ratio",
+    "difficulty": "medium",
+    "generator": "simplifyRatio",
+    "source_question": "18a",
+    "enabled": true
+  },
+  {
+    "id": "scale_model",
+    "topic": "ratio_scale",
+    "difficulty": "hard",
+    "generator": "scaleModel",
+    "source_question": "18b-c",
+    "enabled": true
+  },
+  {
+    "id": "metric_conversion_difference",
+    "topic": "measurement",
+    "difficulty": "medium",
+    "generator": "metricConversionDifference",
+    "source_question": "19a",
+    "enabled": true
+  },
+  {
+    "id": "round_up_word_problem",
+    "topic": "division",
+    "difficulty": "medium",
+    "generator": "roundUpWordProblem",
+    "source_question": "19b",
+    "enabled": true
+  },
+  {
+    "id": "linear_rule_table",
+    "topic": "algebra",
+    "difficulty": "medium",
+    "generator": "linearRuleTable",
+    "source_question": "20",
+    "enabled": true
+  },
+  {
+    "id": "rectangle_packing",
+    "topic": "area",
+    "difficulty": "hard",
+    "generator": "rectanglePacking",
+    "source_question": "21",
+    "enabled": true
+  },
+  {
+    "id": "catch_up_speed",
+    "topic": "speed_distance_time",
+    "difficulty": "hard",
+    "generator": "catchUpSpeed",
+    "source_question": "22",
+    "enabled": true
+  },
+  {
+    "id": "number_scale_interpolation",
+    "topic": "number_scales",
+    "difficulty": "medium",
+    "generator": "numberScaleInterpolation",
+    "source_question": "23",
+    "enabled": true
+  }
+]
