@@ -1,4 +1,5 @@
-// My first generator
+alert("NEW VERSION LOADED");
+
 const questionTypes = [
   "addition",
   "subtraction",
