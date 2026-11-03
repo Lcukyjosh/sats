@@ -1,1 +1,24 @@
-<html> <body> <h1>My New Test Generator</h1> </body> </html>
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>KS2 Test Generator</h1>
+
+<button onclick="showQuestion()">
+Generate Question
+</button>
+
+<p id="question"></p>
+
+<script src="app.js"></script>
+
+<script>
+function showQuestion() {
+  document.getElementById("question").innerText =
+    createQuestion();
+}
+</script>
+
+</body>
+</html>
+
