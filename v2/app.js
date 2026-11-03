@@ -1,5 +1,3 @@
-alert("NEW VERSION LOADED");
-
 const questionTypes = [
   "addition",
   "subtraction",
@@ -20,38 +18,27 @@ function createQuestion() {
   let num2;
 
   if (type === "addition") {
-
     num1 = Math.floor(Math.random() * 900) + 100;
     num2 = Math.floor(Math.random() * 900) + 100;
-
     return num1 + " + " + num2;
   }
 
   if (type === "subtraction") {
-
     num1 = Math.floor(Math.random() * 900) + 100;
     num2 = Math.floor(Math.random() * 500) + 100;
-
     return num1 + " - " + num2;
   }
 
   if (type === "multiplication") {
-
     num1 = Math.floor(Math.random() * 12) + 1;
     num2 = Math.floor(Math.random() * 12) + 1;
-
     return num1 + " × " + num2;
   }
 
   if (type === "division") {
-
     num2 = Math.floor(Math.random() * 12) + 1;
-
-    const answer =
-      Math.floor(Math.random() * 12) + 1;
-
+    const answer = Math.floor(Math.random() * 12) + 1;
     num1 = num2 * answer;
-
     return num1 + " ÷ " + num2;
   }
 }
@@ -68,6 +55,5 @@ function createPaper() {
       "<br><br>";
   }
 
-  document.getElementById("question")
-    .innerHTML = paper;
+  document.getElementById("question").innerHTML = paper;
 }
