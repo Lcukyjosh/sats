@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KS2 SATs App</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{--p:#4f46e5;--pl:#eef2ff;--ok:#16a34a;--okl:#dcfce7;--warn:#d97706;--warnl:#fef3c7;--err:#dc2626;--errl:#fee2e2;--pu:#7c3aed;--cy:#0891b2;--te:#059669;--or:#ea580c;--pi:#db2777;--g0:#f9fafb;--g1:#f3f4f6;--g2:#e5e7eb;--g4:#9ca3af;--g6:#4b5563;--g8:#1f2937;--r:12px;--sh:0 1px 3px rgba(0,0,0,.1);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--g0);color:var(--g8);min-height:100vh;}
+.connbanner{padding:12px 20px;font-size:.82rem;font-weight:600;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.connbanner.ok{background:#dcfce7;color:#15803d;}.connbanner.er{background:#fee2e2;color:#b91c1c;}.connbanner.sy{background:#fef3c7;color:#92400e;}.connbanner.hid{display:none;}
+.connbtn{padding:5px 12px;border-radius:6px;border:none;font-size:.78rem;font-weight:700;cursor:pointer;background:rgba(0,0,0,.12);color:inherit;}
+.hdr{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;padding:0 16px;display:flex;align-items:stretch;justify-content:space-between;flex-wrap:wrap;}
+.htitle{padding:12px 0;}.htitle h1{font-size:1.1rem;font-weight:800;}.htitle p{font-size:.72rem;opacity:.85;margin-top:1px;}
+.hnav{display:flex;align-items:flex-end;gap:1px;padding:0 0 0 8px;flex-wrap:wrap;}
+.ntab{padding:10px 12px;border:none;background:none;color:rgba(255,255,255,.7);font-size:.76rem;font-weight:700;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap;}
+.ntab:hover{color:#fff;background:rgba(255,255,255,.1);}
+.ntab.on{color:#fff;border-bottom-color:#fff;background:rgba(255,255,255,.15);}
+.hright{padding:12px 0;display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.pill{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:.72rem;font-weight:600;}
+.sdot{width:7px;height:7px;border-radius:50%;background:#9ca3af;flex-shrink:0;}
+.sdot.ok{background:#4ade80;}.sdot.sy{background:#fbbf24;animation:pu 1s infinite;}.sdot.er{background:#f87171;}
+.slbl{font-size:.7rem;opacity:.9;}
+@keyframes pu{0%,100%{opacity:1;}50%{opacity:.3;}}
+.pnl{display:none;}.pnl.on{display:block;}
+.wrap{max-width:1200px;margin:0 auto;padding:18px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+@media(max-width:900px){.g2{grid-template-columns:1fr;}.g5{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:500px){.g5{grid-template-columns:1fr;}}
+.card{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:16px;}
+.ctitle{font-size:.85rem;font-weight:700;color:var(--g8);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.sc{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:12px 14px;border-top:3px solid transparent;}
+.sl{font-size:.66rem;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+.sv{font-size:1.6rem;font-weight:800;line-height:1;}
+.ss{font-size:.68rem;color:var(--g6);margin-top:2px;}
+.ssp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+@media(max-width:700px){.ssp{grid-template-columns:1fr;}}
+.spnl{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:14px;}
+.sptitle{font-size:.8rem;font-weight:700;color:var(--g8);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--g1);}
+.si{border-radius:7px;padding:8px 10px;display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;}
+.si:last-child{margin-bottom:0;}
+.si.hi{background:var(--errl);border-left:4px solid var(--err);}
+.si.me{background:var(--warnl);border-left:4px solid var(--warn);}
+.si.lo{background:var(--okl);border-left:4px solid var(--ok);}
+.si strong{display:block;font-size:.76rem;font-weight:700;margin-bottom:1px;}
+.si span{font-size:.7rem;color:var(--g6);line-height:1.5;}
+label{font-size:.76rem;font-weight:600;color:var(--g6);display:block;margin-bottom:3px;}
+input[type=text],input[type=date],select{width:100%;padding:6px 9px;border:1.5px solid var(--g2);border-radius:7px;font-size:.84rem;color:var(--g8);background:#fff;outline:none;}
+input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--p);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.sgi{background:var(--g0);border-radius:7px;padding:8px;}
+.sgi label{font-size:.68rem;color:var(--g6);margin-bottom:3px;}
+.sgi input{background:#fff;width:100%;padding:5px 8px;border:1.5px solid var(--g2);border-radius:6px;font-size:.84rem;outline:none;}
+.smx{font-size:.66rem;color:var(--g4);margin-top:2px;}
+.btn{padding:7px 16px;border-radius:7px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.bp{background:var(--p);color:#fff;}.bp:hover{background:#4338ca;}
+.bs{background:var(--te);color:#fff;}.bs:hover{background:#047857;}
+.bo{background:#fff;color:var(--p);border:2px solid var(--p);}.bo:hover{background:var(--pl);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.br{display:flex;gap:8px;justify-content:flex-end;}
+.div{margin:10px 0 6px;font-size:.66rem;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center;gap:6px;}
+.div::after{content:'';flex:1;height:1px;background:var(--g2);}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:.77rem;}
+th{background:var(--g0);padding:6px 8px;text-align:left;font-size:.66rem;font-weight:700;color:var(--g6);text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid var(--g2);white-space:nowrap;}
+td{padding:6px 8px;border-bottom:1px solid var(--g1);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--g0);}
+.badge{display:inline-block;padding:2px 6px;border-radius:20px;font-size:.66rem;font-weight:700;}
+.bgn{background:var(--okl);color:var(--ok);}.byw{background:var(--warnl);color:var(--warn);}.brd{background:var(--errl);color:var(--err);}.bbl{background:var(--pl);color:var(--p);}
+.db{background:none;border:none;cursor:pointer;color:var(--g4);font-size:.88rem;padding:2px 4px;border-radius:3px;}
+.db:hover{color:var(--err);background:var(--errl);}
+.cw{position:relative;height:200px;}
+.tabs{display:flex;gap:3px;background:var(--g1);border-radius:7px;padding:3px;margin-bottom:10px;}
+.tab{flex:1;padding:4px 6px;border:none;background:none;border-radius:5px;font-size:.7rem;font-weight:600;color:var(--g6);cursor:pointer;transition:all .2s;}
+.tab.on{background:#fff;color:var(--p);box-shadow:var(--sh);}
+.qw{max-width:680px;margin:0 auto;padding:18px;}
+.subj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0;}
+@media(max-width:600px){.subj-grid{grid-template-columns:1fr 1fr;}}
+.sbtn{border:2.5px solid var(--g2);border-radius:var(--r);padding:12px 10px;cursor:pointer;background:#fff;transition:all .2s;text-align:left;}
+.sbtn:hover,.sbtn.on{border-color:var(--p);background:var(--pl);}
+.sbtn h3{font-size:.82rem;font-weight:700;color:var(--g8);margin-bottom:2px;}
+.sbtn p{font-size:.68rem;color:var(--g6);line-height:1.3;}
+.stag{display:inline-block;padding:2px 6px;border-radius:8px;font-size:.62rem;font-weight:700;margin-bottom:5px;}
+.diff-sel{display:flex;gap:6px;margin:10px 0;}
+.dbtn{flex:1;padding:7px;border:2px solid var(--g2);border-radius:8px;background:#fff;cursor:pointer;font-size:.76rem;font-weight:600;color:var(--g6);text-align:center;transition:all .2s;}
+.dbtn:hover,.dbtn.on{border-color:var(--p);background:var(--pl);color:var(--p);}
+.wcard{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:22px;text-align:center;}
+.wcard h2{font-size:1.2rem;font-weight:800;color:var(--p);margin-bottom:6px;}
+.wcard p{color:var(--g6);font-size:.82rem;line-height:1.6;margin-bottom:4px;}
+.qcard{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:12px;}
+.qmeta{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap;}
+.qnum{background:var(--p);color:#fff;border-radius:6px;padding:2px 9px;font-size:.72rem;font-weight:700;}
+.qsec{background:var(--g1);color:var(--g6);border-radius:6px;padding:2px 7px;font-size:.68rem;font-weight:600;}
+.qdiff{border-radius:6px;padding:2px 7px;font-size:.68rem;font-weight:700;}
+.qtag{border-radius:6px;padding:2px 7px;font-size:.68rem;font-weight:700;}
+.qtxt{font-size:.9rem;font-weight:600;color:var(--g8);line-height:1.55;margin-bottom:4px;}
+.qsen{background:var(--g0);border-left:4px solid var(--p);border-radius:0 7px 7px 0;padding:9px 12px;font-size:.86rem;color:var(--g8);margin-bottom:12px;font-style:italic;}
+.opts{display:flex;flex-direction:column;gap:7px;}
+.obtn{display:flex;align-items:center;gap:9px;padding:10px 12px;border:2px solid var(--g2);border-radius:9px;background:#fff;cursor:pointer;font-size:.85rem;color:var(--g8);text-align:left;transition:all .18s;width:100%;}
+.obtn:hover:not(:disabled){border-color:var(--p);background:var(--pl);}
+.obtn .ol{width:22px;height:22px;border-radius:50%;background:var(--g1);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:var(--g6);flex-shrink:0;}
+.obtn.ok{border-color:var(--ok);background:var(--okl);}.obtn.ok .ol{background:var(--ok);color:#fff;}
+.obtn.wr{border-color:var(--err);background:var(--errl);}.obtn.wr .ol{background:var(--err);color:#fff;}
+.obtn:disabled{cursor:default;}
+.fb{border-radius:8px;padding:9px 12px;margin-top:10px;font-size:.8rem;line-height:1.5;display:none;}
+.fb.on{display:block;}
+.fb.ok{background:var(--okl);color:var(--ok);border-left:4px solid var(--ok);}
+.fb.wr{background:var(--errl);color:var(--err);border-left:4px solid var(--err);}
+.fb strong{display:block;margin-bottom:2px;}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:11px;}
+.rcard{background:#fff;border-radius:var(--r);box-shadow:var(--sh);padding:22px;}
+.rhero{text-align:center;margin-bottom:16px;}
+.circ{width:84px;height:84px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 9px;font-weight:800;border:5px solid;}
+.circ .big{font-size:1.5rem;line-height:1;}.circ .sm{font-size:.66rem;opacity:.8;}
+.ssco{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+@media(max-width:440px){.ssco{grid-template-columns:1fr;}}
+.ssc{border-radius:8px;padding:9px;text-align:center;}
+.ssc .sv2{font-size:1.1rem;font-weight:800;}.ssc .sl2{font-size:.64rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.rrow{display:flex;align-items:flex-start;gap:7px;padding:6px 8px;border-radius:7px;margin-bottom:4px;font-size:.76rem;}
+.rrow.ok{background:var(--okl);}.rrow.wr{background:var(--errl);}
+.rrow strong{display:block;font-size:.78rem;margin-bottom:1px;}.rrow span{color:var(--g6);}
+.tbr{margin-bottom:7px;}
+.tbh{display:flex;justify-content:space-between;font-size:.74rem;margin-bottom:2px;}
+.tbn{font-weight:600;}.tbs{color:var(--g6);}
+.tbb{height:6px;background:var(--g2);border-radius:3px;overflow:hidden;}
+.tbf{height:100%;border-radius:3px;}
+.sugi{display:flex;gap:6px;margin-bottom:5px;font-size:.76rem;line-height:1.5;}
+.sbanner{background:var(--okl);border:1.5px solid var(--ok);border-radius:8px;padding:10px 13px;margin-bottom:11px;display:none;align-items:center;gap:8px;font-size:.8rem;color:var(--ok);font-weight:600;}
+.ract{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+.nd{text-align:center;color:var(--g4);font-size:.78rem;padding:14px 0;}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--g8);color:#fff;padding:8px 14px;border-radius:7px;font-size:.78rem;font-weight:500;opacity:0;transform:translateY(10px);transition:all .3s;z-index:9998;pointer-events:none;max-width:300px;word-break:break-word;}
+.toast.on{opacity:1;transform:translateY(0);}
+.mb16{margin-bottom:16px;}
+
+/* V4 enhancements */
+.v4bar{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.v4card{background:linear-gradient(135deg,#eef2ff,#f0fdf4);border:1px solid var(--g2);border-radius:10px;padding:12px}.v4card strong{display:block;color:var(--g8);margin-bottom:4px}.v4card span{font-size:.75rem;color:var(--g5)}.v4ready{font-size:1.55rem;font-weight:800;color:var(--p)}.v4mastery{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:8px}.v4mi{font-size:.73rem;background:#fff;border:1px solid var(--g2);border-radius:7px;padding:7px}.v4daily{width:100%;margin-top:9px}.v4note{font-size:.7rem;color:var(--g4);margin-top:8px}@media(max-width:700px){.v4bar{grid-template-columns:1fr}.v4mastery{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="connbanner sy" id="connBanner">
+  <span id="connMsg">🔄 Connecting to cloud…</span>
+  <button class="connbtn" onclick="retryConn()" id="connBtn" style="display:none;">Retry</button>
+</div>
+<div class="hdr">
+  <div class="htitle"><h1>📚 KS2 SATs V4 — Adaptive Quiz &amp; Parent Dashboard</h1><p>Grammar · Maths · Science · Geography · Computing · Scores sync to cloud</p></div>
+  <div class="hnav">
+    <button class="ntab on" onclick="showP('quiz',this)">🎮 Quiz</button>
+    <button class="ntab" onclick="showP('dash',this)">📊 Dashboard</button>
+    <button class="ntab" onclick="showP('log',this)">✏️ Log Score</button>
+  </div>
+  <div class="hright">
+    <div class="sdot" id="sdot"></div><span class="slbl" id="slbl">Connecting…</span>
+    <div class="pill" id="totS">0 sessions</div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="pnl on" id="pnl-quiz"><div class="qw">
+  <div id="qwelcome">
+    <div class="wcard">
+      <h2>KS2 Multi-Subject Quiz 🎉</h2>
+      <p>Choose a subject and difficulty. Questions are randomly selected — every session is different!</p>
+      <p style="font-size:.72rem;color:var(--g4);margin-top:3px;">Scores sync to cloud automatically. Open Dashboard on any device to track progress.</p>
+      <div class="div" style="margin-top:14px;">Choose Subject</div>
+      <div class="subj-grid">
+        <button class="sbtn on" onclick="selSubj('grammar',this)"><div class="stag" style="background:#eef2ff;color:#4f46e5;">KS2 Y5/6</div><h3>🔤 Grammar</h3><p>Punctuation, word classes, sentence types, tense</p></button>
+        <button class="sbtn" onclick="selSubj('arithmetic',this)"><div class="stag" style="background:#e0f2fe;color:#0891b2;">KS2 Y5/6</div><h3>➕ Arithmetic</h3><p>Operations, fractions, decimals, percentages</p></button>
+        <button class="sbtn" onclick="selSubj('reasoning',this)"><div class="stag" style="background:#dcfce7;color:#16a34a;">KS2 Y5/6</div><h3>🧠 Reasoning</h3><p>Word problems, multi-step, logic</p></button>
+        <button class="sbtn" onclick="selSubj('science',this)"><div class="stag" style="background:#fff7ed;color:#ea580c;">Science</div><h3>🔬 Science</h3><p>Living things, forces, materials, electricity</p></button>
+        <button class="sbtn" onclick="selSubj('geography',this)"><div class="stag" style="background:#f3e8ff;color:#7c3aed;">Geography</div><h3>🌍 Geography</h3><p>UK, world, climate, map skills</p></button>
+        <button class="sbtn" onclick="selSubj('computing',this)"><div class="stag" style="background:#fce7f3;color:#db2777;">Computing</div><h3>💻 Computing</h3><p>Algorithms, data, networks, online safety</p></button>
+        <button class="sbtn" onclick="selSubj('comprehension',this)"><div class="stag" style="background:#fef3c7;color:#92400e;">KS2 Y5/6</div><h3>📖 Comprehension</h3><p>Fresh passages, vocabulary, retrieval and inference</p></button>
+      </div>
+      <div class="div">Choose Difficulty</div>
+      <div class="diff-sel">
+        <button class="dbtn on" onclick="selDiff('easy',this)">🟢 Easy</button>
+        <button class="dbtn" onclick="selDiff('medium',this)">🟡 Medium</button>
+        <button class="dbtn" onclick="selDiff('hard',this)">🔴 Hard</button>
+        <button class="dbtn" onclick="selDiff('mixed',this)">🎲 Mixed</button>
+      </div>
+      <button class="btn bp" style="font-size:.92rem;padding: 0;margin-top:10px;" onclick="startQ()">Start Quiz →</button>
+      <button class="btn v4daily" style="font-size:.88rem;padding:10px;margin-top:8px;background:#0f766e;color:white;" onclick="startDailyPaper()">📅 Start Today's Adaptive Paper</button>
+      <div class="v4note">V4 uses cloud history to favour weaker topics. Today's paper is generated automatically from current progress.</div>
+    </div>
+  </div>
+  <div id="qquestion" style="display:none;">
+  <div class="v5toolbar" id="v5toolbar">
+    <div class="v5timer" id="v5timer" aria-live="polite">⏱ 20:00</div>
+    <div class="v5actions">
+      <button class="btn bo" id="v5pause" onclick="v5PauseQuiz()">⏸ Pause</button>
+      <button class="btn bo" onclick="v5EndQuiz()">⏹ End quiz</button>
+    </div>
+  </div>
+  <div class="v5pause" id="v5pausePanel" style="display:none;">
+    <h2>Quiz paused</h2><p>Your answers and remaining time are safe.</p>
+    <button class="btn bs" onclick="v5ResumeQuiz()">▶ Resume quiz</button>
+  </div>
+  <div id="qcon"></div><div class="qnav"><div id="qnL"></div><div id="qnR"></div></div>
+</div>
+  <div id="qresults" style="display:none;">
+    <div class="rcard">
+      <div class="rhero">
+        <div class="circ" id="circ"><div class="big" id="cbig">—</div><div class="sm" id="csm">/ 15</div></div>
+        <h2 id="rtitle" style="font-size:1.1rem;font-weight:800;margin-bottom:4px;"></h2>
+        <p id="rsub" style="color:var(--g6);font-size:.8rem;"></p>
+      </div>
+      <div class="ssco" id="ssco"></div>
+      <div style="margin-bottom:14px;"><div class="ctitle" style="margin-bottom:6px;">📋 Question Review</div><div id="rlist"></div></div>
+      <div style="margin-bottom:14px;"><div class="ctitle" style="margin-bottom:6px;">📊 Topic Breakdown</div><div id="tbars"></div></div>
+      <div style="background:var(--g0);border-radius:8px;padding: 0;margin-bottom:11px;"><div class="ctitle" style="margin-bottom:5px;">💡 Suggestions</div><div id="sugs"></div></div>
+      <div class="sbanner" id="sbanner"><span>☁️</span><span>Synced to cloud! Switch to <strong>📊 Dashboard</strong> to see your progress on any device.</span></div>
+      <div class="ract">
+        <button class="btn bo" onclick="retryQ()">🔄 New Quiz</button>
+        <button class="btn bo" onclick="goHome()">🏠 Choose Subject</button>
+        <button class="btn bs" onclick="showP('dash',document.querySelectorAll('.ntab')[1])">📊 Dashboard</button>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<!-- DASHBOARD -->
+<div class="pnl" id="pnl-dash"><div class="wrap">
+  <div class="v4bar" id="v4Insights">
+    <div class="v4card"><strong>🎯 Ready for SATs?</strong><div class="v4ready" id="v4Ready">—</div><span id="v4ReadyText">Complete Grammar, Arithmetic and Reasoning quizzes to calculate readiness.</span></div>
+    <div class="v4card"><strong>🧭 Adaptive Learning</strong><div id="v4Weak">No cloud history yet.</div><button class="btn v4daily" style="padding:8px;background:#0f766e;color:#fff" onclick="showP('quiz',document.querySelector('.ntab'));startDailyPaper();">Start today's paper</button></div>
+    <div class="v4card"><strong>🏅 Topic Mastery</strong><div class="v4mastery" id="v4Mastery"><div class="v4mi">Complete a V4 quiz to begin.</div></div></div>
+  </div>
+  <div class="g5 mb16">
+    <div class="sc" style="border-top-color:var(--p);"><div class="sl">Overall</div><div class="sv" id="sOv" style="color:var(--p);">—</div><div class="ss">all sessions</div></div>
+    <div class="sc" style="border-top-color:var(--pu);"><div class="sl">🔤 Grammar</div><div class="sv" id="sGr" style="color:var(--pu);">—</div><div class="ss">avg %</div></div>
+    <div class="sc" style="border-top-color:var(--cy);"><div class="sl">➕ Arithmetic</div><div class="sv" id="sAr" style="color:var(--cy);">—</div><div class="ss">avg %</div></div>
+    <div class="sc" style="border-top-color:var(--te);"><div class="sl">🧠 Reasoning</div><div class="sv" id="sRe" style="color:var(--te);">—</div><div class="ss">avg %</div></div>
+    <div class="sc" style="border-top-color:var(--or);"><div class="sl">🔬🌍💻 Other</div><div class="sv" id="sOt" style="color:var(--or);">—</div><div class="ss">avg %</div></div>
+  </div>
+  <div class="g2 mb16">
+    <div class="card">
+      <div class="ctitle">📈 Progress Over Time</div>
+      <div class="tabs">
+        <button class="tab on" onclick="swCh('ov',this)">Overall</button>
+        <button class="tab" onclick="swCh('gr',this)">Grammar</button>
+        <button class="tab" onclick="swCh('ma',this)">Maths</button>
+        <button class="tab" onclick="swCh('sc',this)">Science</button>
+      </div>
+      <div class="cw"><canvas id="pChart"></canvas></div>
+    </div>
+    <div class="card"><div class="ctitle">🎯 Subject Performance</div><div class="cw"><canvas id="sChart"></canvas></div></div>
+  </div>
+  <div class="ssp">
+    <div class="spnl"><div class="sptitle">📚 English Suggestions</div><div id="gSug"><div class="nd">Complete a quiz to see suggestions.</div></div></div>
+    <div class="spnl"><div class="sptitle">🔬 Science / Geography / Computing</div><div id="mSug"><div class="nd">Complete a quiz to see suggestions.</div></div></div>
+  </div>
+  <div class="card mb16">
+    <div class="ctitle">📅 Session History
+      <button class="btn bo" style="margin-left:auto;padding: 0;font-size:.7rem;" onclick="refreshD()">🔄 Refresh</button>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Date</th><th>Subject</th><th>Difficulty</th><th>Score</th><th>%</th><th>Grade</th><th>Notes</th><th></th></tr></thead>
+      <tbody id="hBody"><tr><td colspan="8" class="nd">Loading…</td></tr></tbody>
+    </table></div>
+  </div>
+</div></div>
+
+<!-- LOG SCORE -->
+<div class="pnl" id="pnl-log"><div class="wrap">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">✏️ Log a Manual Score</div>
+      <div class="fr">
+        <div><label>Date</label><input type="date" id="eDate"></div>
+        <div><label>Subject</label>
+          <select id="eSubj">
+            <option value="grammar">🔤 Grammar</option>
+            <option value="arithmetic">➕ Arithmetic</option>
+            <option value="reasoning">🧠 Reasoning</option>
+            <option value="science">🔬 Science</option>
+            <option value="geography">🌍 Geography</option>
+            <option value="computing">💻 Computing</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr">
+        <div><label>Difficulty</label>
+          <select id="eDiff">
+            <option value="easy">🟢 Easy</option>
+            <option value="medium">🟡 Medium</option>
+            <option value="hard">🔴 Hard</option>
+            <option value="mixed">🎲 Mixed</option>
+          </select>
+        </div>
+        <div><label>Chapter / Topic</label><input type="text" id="eChapter" placeholder="e.g. Living Things"></div>
+      </div>
+      <div class="sg">
+        <div class="sgi"><label>Score</label><input type="number" id="eScore" min="0" max="100" placeholder="e.g. 7"><div class="smx">correct answers</div></div>
+        <div class="sgi"><label>Out of</label><input type="number" id="eTotal" min="1" max="100" value="10"><div class="smx">total questions</div></div>
+        <div class="sgi"><label>Notes</label><input type="text" id="eNotes" placeholder="optional"></div>
+      </div>
+      <div class="br"><button class="btn bp" id="btnP" onclick="addManual()">+ Add Score</button></div>
+    </div>
+    <div class="card"><div class="ctitle">📊 Subject Breakdown</div><div class="cw"><canvas id="gmChart"></canvas></div></div>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+// FIREBASE REST API
+var FB_URL='https://firestore.googleapis.com/v1/projects/sats-app-73a02/databases/(default)/documents/sessions';
+var FB_KEY='AIzaSyD_NaF9EfJsXtpJQPNc6mXvUbVUlQcrcFs';
+function toFS(obj){var f={};Object.keys(obj).forEach(function(k){var v=obj[k];if(v===null||v===undefined)return;if(typeof v==='boolean')f[k]={booleanValue:v};else if(typeof v==='number')f[k]={doubleValue:v};else if(typeof v==='string')f[k]={stringValue:v};else if(Array.isArray(v)){f[k]={arrayValue:{values:v.map(function(i){if(i===null||i===undefined)return{nullValue:null};if(typeof i==='boolean')return{booleanValue:i};if(typeof i==='number')return{doubleValue:i};if(typeof i==='string')return{stringValue:i};if(typeof i==='object')return{mapValue:{fields:toFS(i)}};return{stringValue:String(i)};})}};}else if(typeof v==='object')f[k]={mapValue:{fields:toFS(v)}};});return f;}
+function fromFS(doc){var obj={_fid:doc.name.split('/').pop()};function pv(v){if(!v)return null;if('stringValue'in v)return v.stringValue;if('doubleValue'in v)return v.doubleValue;if('integerValue'in v)return parseInt(v.integerValue);if('booleanValue'in v)return v.booleanValue;if('nullValue'in v)return null;if('arrayValue'in v)return(v.arrayValue.values||[]).map(pv);if('mapValue'in v){var o={};Object.keys(v.mapValue.fields||{}).forEach(function(k){o[k]=pv(v.mapValue.fields[k]);});return o;}return null;}Object.keys(doc.fields||{}).forEach(function(k){obj[k]=pv(doc.fields[k]);});return obj;}
+var DB={save:function(e){return fetch(FB_URL+'?key='+FB_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:toFS(e)})}).then(function(r){return r.json().then(function(b){if(!r.ok)throw new Error((b.error&&b.error.message)||('HTTP '+r.status));return b.name.split('/').pop();});});},loadAll:function(){return fetch(FB_URL+'?key='+FB_KEY+'&pageSize=500').then(function(r){return r.json().then(function(b){if(!r.ok)throw new Error((b.error&&b.error.message)||('HTTP '+r.status));return(b.documents||[]).map(fromFS);});});},del:function(fid){return fetch(FB_URL+'/'+fid+'?key='+FB_KEY,{method:'DELETE'}).then(function(r){if(!r.ok)return r.json().then(function(b){throw new Error((b.error&&b.error.message)||('HTTP '+r.status));});});}};
+
+// QUESTION BANKS
+var BANK={
+grammar:[
+{id:'g1',diff:'easy',top:'Sentence Types',txt:'What type of sentence is this?',sen:'Go to bed.',opts:['A question','A command','An exclamation','A statement'],ans:1,exp:'This is a command — it tells someone to do something. Commands often start with a verb.'},
+{id:'g2',diff:'easy',top:'Sentence Types',txt:'What type of sentence is this?',sen:'There are twenty-seven children in our class.',opts:['A question','A statement','A command','An exclamation'],ans:1,exp:'This is a statement — it gives information. Statements end with a full stop.'},
+{id:'g3',diff:'easy',top:'Word Classes',txt:'What word class is the underlined word?',sen:'Kinza thought the dress was pretty. (pretty)',opts:['Noun','Adjective','Verb','Adverb'],ans:1,exp:'"Pretty" is an adjective — it describes the noun "dress".'},
+{id:'g4',diff:'easy',top:'Punctuation',txt:'What punctuation mark ends this sentence?',sen:'What time does the library open',opts:['Full stop (.)','Exclamation mark (!)','Question mark (?)','Comma (,)'],ans:2,exp:'This is a question. Questions end with a question mark (?).'},
+{id:'g5',diff:'easy',top:'Conjunctions',txt:'Tick one word to complete the sentence.',sen:'Ben went to sleep, ______ Sara stayed awake.',opts:['or','but','that','which'],ans:1,exp:'"But" joins two contrasting ideas.'},
+{id:'g6',diff:'easy',top:'Apostrophes',txt:'Which sentence uses an apostrophe correctly?',opts:["Sara's bag is red.","Saras' bag is red.","Saras bag is red and has lot's of pockets.","Saras bag is red and has lots of pocket's."],ans:0,exp:'"Sara\'s" uses an apostrophe to show possession.'},
+{id:'g7',diff:'easy',top:'Verb Tense',txt:'Which sentence is written in the past tense?',opts:['She picks up a football.','She picked up a football.','She is picking up a football.','She will pick up a football.'],ans:1,exp:'"Picked" is the simple past tense of "pick".'},
+{id:'g8',diff:'easy',top:'Word Classes',txt:'Which word is a noun in the sentence below?',sen:'The enormous elephant walked slowly through the jungle.',opts:['enormous','walked','slowly','elephant'],ans:3,exp:'"Elephant" is a noun — it names a thing.'},
+{id:'g9',diff:'easy',top:'Prefixes',txt:'Which prefix makes the word "happy" mean the opposite?',opts:['re-','un-','pre-','mis-'],ans:1,exp:'"Un-" added to "happy" makes "unhappy".'},
+{id:'g10',diff:'easy',top:'Suffixes',txt:'Add a suffix to the word "quick" to make an adverb.',opts:['quickly','quicker','quicken','quickest'],ans:0,exp:'"Quickly" is an adverb formed by adding "-ly".'},
+{id:'g11',diff:'medium',top:'Commas',txt:'Which sentence uses a comma correctly after a fronted adverbial?',opts:['After the storm, the streets were flooded.','After, the storm the streets were flooded.','After the storm the, streets were flooded.','After the storm the streets, were flooded.'],ans:0,exp:'A comma goes after a fronted adverbial — a key KS2 grammar rule.'},
+{id:'g12',diff:'medium',top:'Word Classes',txt:'What word class is the underlined word?',sen:'The old man walked slowly along the path. (slowly)',opts:['Noun','Adjective','Verb','Adverb'],ans:3,exp:'"Slowly" is an adverb — it describes HOW the man walked.'},
+{id:'g13',diff:'medium',top:'Verb Tense',txt:'Which option correctly completes the sentence in the past tense?',sen:'Yesterday, the dog ______ across the field and ______ over the fence.',opts:['run, jump','ran, jumped','runned, jumped','ran, jump'],ans:1,exp:'"Ran" is the irregular past tense of "run". "Jumped" is the regular past tense of "jump".'},
+{id:'g14',diff:'medium',top:'Conjunctions',txt:'Tick one word to complete the sentence.',sen:'The children were excited ______ they were going on a school trip.',opts:['but','because','although','however'],ans:1,exp:'"Because" is a subordinating conjunction showing reason.'},
+{id:'g15',diff:'medium',top:'Punctuation',txt:'Which punctuation mark is missing from this sentence?',sen:'"Can you please read to me Mum"',opts:['Full stop','Comma','Question mark','Exclamation mark'],ans:2,exp:'The sentence is a question in speech marks. It needs a question mark before the closing speech mark.'},
+{id:'g16',diff:'medium',top:'Apostrophes',txt:'Which sentence uses a contraction correctly?',opts:["I didn't go to the park yesterday.","I did'nt go to the park yesterday.","I didnt' go to the park yesterday.","I did not' go to the park yesterday."],ans:0,exp:'"Didn\'t" is the contraction of "did not".'},
+{id:'g17',diff:'medium',top:'Plurals',txt:'Which is the correct plural of "church"?',opts:['churchs','churches','churchies','church'],ans:1,exp:'Words ending in -ch form their plural by adding -es.'},
+{id:'g18',diff:'medium',top:'Word Classes',txt:'What type of word is underlined in the sentence below?',sen:'There is a dog in the park. (dog)',opts:['adjective','verb','adverb','noun'],ans:3,exp:'"Dog" is a noun — it names a thing.'},
+{id:'g19',diff:'medium',top:'Sentence Types',txt:'Which sentence is an exclamation?',opts:['What can I buy?','How may I help you?','What a lovely dress you have!','My mum is a plumber.'],ans:2,exp:'Exclamations start with "What" or "How" and end with an exclamation mark.'},
+{id:'g20',diff:'medium',top:'Verb Tense',txt:'Tick the word that completes the sentence correctly.',sen:'I __________ my tests last March.',opts:['taken','take','took','taking'],ans:2,exp:'"Took" is the simple past tense of "take" — an irregular verb.'},
+{id:'g21',diff:'hard',top:'Subjunctive',txt:'Tick the correct subjunctive form.',sen:'The head teacher insisted that every pupil ______ present at the ceremony.',opts:['is','was','be','were'],ans:2,exp:'"Be" is the subjunctive — used after verbs of insistence. Year 6 GPS objective.'},
+{id:'g22',diff:'hard',top:'Passive Voice',txt:'Which is the passive voice version of: "The scientists discovered a new species of beetle."?',opts:['The scientists were discovering a new species.','A new species of beetle was discovered by the scientists.','A new species of beetle has been discovered.','The scientists had discovered a new species.'],ans:1,exp:'Passive: object becomes subject. "A new species" + "was discovered" + "by the scientists".'},
+{id:'g23',diff:'hard',top:'Complex Punctuation',txt:'Which sentence is correctly punctuated?',opts:['Despite the heavy rain the match which had been postponed twice went ahead.','Despite the heavy rain, the match, which had been postponed twice, went ahead.','Despite the heavy rain, the match which had been postponed twice, went ahead.','Despite the heavy rain the match, which had been postponed twice went ahead.'],ans:1,exp:'Comma after fronted adverbial + commas around the relative clause.'},
+{id:'g24',diff:'hard',top:'Formal Register',txt:'Which sentence uses a formal register?',opts:["We're gonna need more time to sort this out.",'It is recommended that further investigation be carried out before a decision is reached.',"The team reckon they can get it done by Friday.",'Loads of people think the new policy is a bit unfair.'],ans:1,exp:'Formal register: passive voice, no contractions, precise vocabulary.'},
+{id:'g25',diff:'hard',top:'Modal Verbs',txt:'Which word is a modal verb?',sen:'You should complete your homework before watching television.',opts:['complete','watching','should','television'],ans:2,exp:'"Should" is a modal verb — it expresses obligation or advice.'},
+{id:'g26',diff:'hard',top:'Relative Clauses',txt:'Which sentence contains a relative clause?',opts:['The dog barked loudly all night.','The dog, which had been barking all night, finally fell asleep.','The dog barked and then fell asleep.','The dog was very loud and kept everyone awake.'],ans:1,exp:'"which had been barking all night" is a relative clause introduced by "which".'},
+{id:'g27',diff:'hard',top:'Subjunctive',txt:'Which sentence uses the subjunctive correctly?',opts:['I suggest that he goes home immediately.','I suggest that he go home immediately.','I suggest that he went home immediately.','I suggest that he is going home immediately.'],ans:1,exp:'"Go" is the subjunctive form — after "suggest that", the verb stays in its base form.'},
+{id:'g28',diff:'hard',top:'Passive Voice',txt:'Which sentence is written in the passive voice?',opts:['The chef cooked a delicious meal.','A delicious meal was cooked by the chef.','The chef is cooking a delicious meal.','The chef had cooked a delicious meal.'],ans:1,exp:'"A delicious meal was cooked by the chef" is passive — the object becomes the subject.'},
+{id:'g29',diff:'hard',top:'Complex Punctuation',txt:'Where should the semicolon go in this sentence?',sen:'The experiment was a success however the results were unexpected.',opts:['After "experiment"','After "success"','After "however"','After "results"'],ans:1,exp:'A semicolon joins two independent clauses: "The experiment was a success; however, the results were unexpected."'},
+{id:'g30',diff:'hard',top:'Relative Clauses',txt:'Which relative pronoun correctly completes the sentence?',sen:'The book ______ I borrowed from the library was fascinating.',opts:['who','whom','which','whose'],ans:2,exp:'"Which" is used for things (not people).'}
+],
+arithmetic:[
+{id:'a1',diff:'easy',top:'Addition',txt:'What is 31 + 48?',opts:['69','79','89','99'],ans:1,exp:'31 + 48 = 79.'},
+{id:'a2',diff:'easy',top:'Subtraction',txt:'What is 99 - 34?',opts:['55','65','75','85'],ans:1,exp:'99 - 34 = 65.'},
+{id:'a3',diff:'easy',top:'Fractions',txt:'What is 1/2 of 28?',opts:['7','14','21','28'],ans:1,exp:'28 / 2 = 14.'},
+{id:'a4',diff:'easy',top:'Fractions',txt:'What is 1/4 of 32?',opts:['6','7','8','9'],ans:2,exp:'32 / 4 = 8.'},
+{id:'a5',diff:'easy',top:'Multiplication',txt:'What is 6 x 7?',opts:['36','42','48','54'],ans:1,exp:'6 x 7 = 42.'},
+{id:'a6',diff:'easy',top:'Division',txt:'What is 72 / 6?',opts:['9','10','11','12'],ans:3,exp:'72 / 6 = 12.'},
+{id:'a7',diff:'easy',top:'Missing Numbers',txt:'What is the missing number?',sen:'7 x ______ = 63',opts:['7','8','9','10'],ans:2,exp:'63 / 7 = 9.'},
+{id:'a8',diff:'medium',top:'Fractions',txt:'What is 3/4 of 120?',opts:['60','80','90','100'],ans:2,exp:'1/4 of 120 = 30. Then 3/4 = 30 x 3 = 90.'},
+{id:'a9',diff:'medium',top:'Missing Numbers',txt:'What is the missing number?',sen:'475 + ______ = 700',opts:['215','225','235','245'],ans:1,exp:'700 - 475 = 225.'},
+{id:'a10',diff:'medium',top:'Addition',txt:'What is 256 + 147?',opts:['393','403','413','423'],ans:1,exp:'256 + 147 = 403.'},
+{id:'a11',diff:'medium',top:'Subtraction',txt:'What is 403 - 178?',opts:['215','225','235','245'],ans:1,exp:'403 - 178 = 225.'},
+{id:'a12',diff:'medium',top:'Fractions',txt:'What is 1/3 of 99?',opts:['27','30','33','36'],ans:2,exp:'99 / 3 = 33.'},
+{id:'a13',diff:'medium',top:'Missing Numbers',txt:'What is the missing number?',sen:'______ / 4 = 9',opts:['27','32','36','40'],ans:2,exp:'9 x 4 = 36.'},
+{id:'a14',diff:'medium',top:'Addition',txt:'What is 248 + 100?',opts:['248','348','448','548'],ans:1,exp:'248 + 100 = 348.'},
+{id:'a15',diff:'hard',top:'Large Numbers',txt:'What is 4,736 + 2,895?',opts:['7,521','7,631','7,641','7,731'],ans:1,exp:'4736 + 2895 = 7631.'},
+{id:'a16',diff:'hard',top:'Large Numbers',txt:'What is 10,004 - 3,867?',opts:['6,037','6,127','6,137','6,237'],ans:2,exp:'10004 - 3867 = 6137.'},
+{id:'a17',diff:'hard',top:'Multiplication',txt:'What is 24 x 35?',opts:['720','740','840','860'],ans:2,exp:'24 x 30 = 720, 24 x 5 = 120. 720 + 120 = 840.'},
+{id:'a18',diff:'hard',top:'Percentages',txt:'What is 25% of 700?',opts:['150','175','200','225'],ans:1,exp:'25% = 1/4. 1/4 of 700 = 175.'},
+{id:'a19',diff:'hard',top:'Fractions',txt:'What is 3/8 of 480?',opts:['160','170','180','190'],ans:2,exp:'1/8 of 480 = 60. 3/8 = 60 x 3 = 180.'},
+{id:'a20',diff:'hard',top:'Missing Numbers',txt:'What is the missing number?',sen:'3.6 x ______ = 252',opts:['60','65','70','75'],ans:2,exp:'252 / 3.6 = 70.'}
+],
+reasoning:[
+{id:'r1',diff:'easy',top:'Money',txt:'Sara has 3 x 10p coins. She buys a chocolate bar for 18p. How much money will she have left?',opts:['10p','12p','14p','16p'],ans:1,exp:'3 x 10p = 30p. 30p - 18p = 12p.'},
+{id:'r2',diff:'easy',top:'Sharing',txt:'Emma has 30 raisins. She gives half to Ben and 5 to Sara. How many raisins does Emma have left?',opts:['5','10','15','20'],ans:1,exp:'Half of 30 = 15. 15 - 5 = 10 raisins left.'},
+{id:'r3',diff:'easy',top:'Word Problems',txt:'A baker cooks 70 cakes. He sells 43 in the morning. How many are left to sell in the afternoon?',opts:['17','27','37','47'],ans:1,exp:'70 - 43 = 27 cakes left.'},
+{id:'r4',diff:'medium',top:'Multi-step',txt:'Sam has 3 boxes of 10 pencils and Anna has 4 boxes of 5 pencils. Who has more pencils?',opts:['Sam (30)','Anna (20)','They have the same','Cannot tell'],ans:0,exp:'Sam: 3 x 10 = 30. Anna: 4 x 5 = 20. Sam has more.'},
+{id:'r5',diff:'medium',top:'Money',txt:'A rubber costs 35p and a comic costs 27p. Ben has only 50p. How much more money does he need?',opts:['10p','12p','14p','16p'],ans:1,exp:'35 + 27 = 62p total. 62 - 50 = 12p more needed.'},
+{id:'r6',diff:'medium',top:'Fractions',txt:'John invited 40 friends to his birthday party. A quarter of them were girls. How many were boys?',opts:['10','20','25','30'],ans:3,exp:'1/4 of 40 = 10 girls. 40 - 10 = 30 boys.'},
+{id:'r7',diff:'medium',top:'Multi-step',txt:'There are 12 lollipops in a bag. Three children share the bag equally. How many do they get each?',opts:['3','4','5','6'],ans:1,exp:'12 / 3 = 4 lollipops each.'},
+{id:'r8',diff:'hard',top:'Multi-step',txt:'Amir has £275. He gives £105 to his mum and £80 to his dad. He shares the rest equally between 10 friends. How much does each friend receive?',opts:['£7','£8','£9','£10'],ans:2,exp:'275 - 105 - 80 = £90 left. £90 / 10 = £9 each.'},
+{id:'r9',diff:'hard',top:'Multi-step',txt:'A dragon eats 5 sheep on Monday, 2 on Tuesday, 1 on Wednesday, 3 on Thursday, and 4 on Friday. How many sheep did he eat altogether?',opts:['13','14','15','16'],ans:2,exp:'5 + 2 + 1 + 3 + 4 = 15 sheep.'},
+{id:'r10',diff:'hard',top:'Multi-step',txt:'There are 380 cars in a car park. 120 cars leave. Then 45 more arrive. How many cars are in the car park now?',opts:['215','295','305','315'],ans:2,exp:'380 - 120 = 260. 260 + 45 = 305 cars.'}
+],
+science:[
+{id:'sc1',diff:'easy',top:'Living Things',chapter:'Living Things',txt:'Which of the following is a characteristic of all living things?',opts:['They can fly','They reproduce','They live in water','They have fur'],ans:1,exp:'All living things can reproduce — one of the seven life processes (MRS NERG).'},
+{id:'sc2',diff:'easy',top:'Living Things',chapter:'Living Things',txt:'What is a habitat?',opts:['A type of animal','The natural home of an organism','A food chain','A type of plant'],ans:1,exp:'A habitat is the natural environment where an organism lives and finds everything it needs to survive.'},
+{id:'sc3',diff:'easy',top:'Food Chains',chapter:'Living Things',txt:'Which of these is a producer in a food chain?',opts:['Fox','Rabbit','Grass','Hawk'],ans:2,exp:'Producers are plants that make their own food through photosynthesis.'},
+{id:'sc4',diff:'medium',top:'Photosynthesis',chapter:'Living Things',txt:'What do plants need for photosynthesis?',opts:['Oxygen and darkness','Sunlight, water and carbon dioxide','Soil and warmth only','Nitrogen and oxygen'],ans:1,exp:'Plants need sunlight, water, and carbon dioxide to make food through photosynthesis.'},
+{id:'sc5',diff:'medium',top:'Food Chains',chapter:'Living Things',txt:'What is the correct order of a food chain?',opts:['Fox → Rabbit → Grass','Grass → Rabbit → Fox','Rabbit → Grass → Fox','Fox → Grass → Rabbit'],ans:1,exp:'Food chains start with a producer (plant). Energy flows: Grass → Rabbit → Fox.'},
+{id:'sc6',diff:'easy',top:'Human Body',chapter:'Animals Including Humans',txt:'Which organ pumps blood around the body?',opts:['Lungs','Brain','Heart','Stomach'],ans:2,exp:'The heart is a muscle that pumps blood around the body through blood vessels.'},
+{id:'sc7',diff:'easy',top:'Healthy Living',chapter:'Animals Including Humans',txt:'What do humans need to stay healthy?',opts:['Only water','A balanced diet, exercise and sleep','Only vitamins','Only protein'],ans:1,exp:'Humans need a balanced diet, regular exercise, and adequate sleep to stay healthy.'},
+{id:'sc8',diff:'medium',top:'Human Body',chapter:'Animals Including Humans',txt:'What is the function of the lungs?',opts:['To digest food','To pump blood','To exchange oxygen and carbon dioxide','To filter waste'],ans:2,exp:'The lungs exchange gases — taking in oxygen and releasing carbon dioxide.'},
+{id:'sc9',diff:'medium',top:'Nutrition',chapter:'Animals Including Humans',txt:'Which nutrient provides the most energy?',opts:['Vitamins','Minerals','Carbohydrates','Water'],ans:2,exp:'Carbohydrates (bread, pasta, rice) are the body\'s main source of energy.'},
+{id:'sc10',diff:'hard',top:'Human Body',chapter:'Animals Including Humans',txt:'What happens to the heart rate during exercise?',opts:['It decreases','It stays the same','It increases','It stops temporarily'],ans:2,exp:'During exercise, muscles need more oxygen, so the heart beats faster to pump more blood.'},
+{id:'sc11',diff:'easy',top:'Conductors',chapter:'Materials',txt:'Which material is a good conductor of electricity?',opts:['Wood','Plastic','Copper','Glass'],ans:2,exp:'Copper is a metal and a good conductor of electricity. It is used in electrical wires.'},
+{id:'sc12',diff:'easy',top:'Properties',chapter:'Materials',txt:'What property describes a material that lets light through?',opts:['Opaque','Transparent','Magnetic','Flexible'],ans:1,exp:'Transparent materials let light pass through them clearly (e.g. glass).'},
+{id:'sc13',diff:'medium',top:'Changes',chapter:'Materials',txt:'Which of these changes is reversible?',opts:['Burning wood','Baking a cake','Melting ice','Cooking an egg'],ans:2,exp:'Melting ice is reversible — it can be frozen again. Burning, baking, and cooking are irreversible.'},
+{id:'sc14',diff:'medium',top:'States of Matter',chapter:'Materials',txt:'What is the state of water at 100°C?',opts:['Solid','Liquid','Gas','Plasma'],ans:2,exp:'Water boils at 100°C and becomes a gas (water vapour/steam).'},
+{id:'sc15',diff:'hard',top:'Changes',chapter:'Materials',txt:'Which process describes water vapour turning into liquid water?',opts:['Evaporation','Condensation','Melting','Freezing'],ans:1,exp:'Condensation is when water vapour cools and turns into liquid water.'},
+{id:'sc16',diff:'easy',top:'Gravity',chapter:'Forces',txt:'What force pulls objects towards the Earth?',opts:['Magnetism','Friction','Gravity','Air resistance'],ans:2,exp:'Gravity is the force that pulls all objects towards the Earth.'},
+{id:'sc17',diff:'easy',top:'Friction',chapter:'Forces',txt:'What does friction do?',opts:['Speeds objects up','Slows objects down','Makes objects float','Pushes objects upward'],ans:1,exp:'Friction is a force that opposes motion — it slows objects down.'},
+{id:'sc18',diff:'medium',top:'Air Resistance',chapter:'Forces',txt:'A parachute slows a skydiver down. Which force does the parachute increase?',opts:['Gravity','Friction','Air resistance','Magnetism'],ans:2,exp:'A parachute increases air resistance — the large surface area catches more air, slowing the fall.'},
+{id:'sc19',diff:'medium',top:'Measurement',chapter:'Forces',txt:'What unit is force measured in?',opts:['Kilograms','Metres','Newtons','Watts'],ans:2,exp:'Force is measured in Newtons (N), named after Sir Isaac Newton.'},
+{id:'sc20',diff:'hard',top:'Balanced Forces',chapter:'Forces',txt:'If two equal forces act in opposite directions on an object, what happens?',opts:['The object speeds up','The object slows down','The forces are balanced and the object stays still','The object moves sideways'],ans:2,exp:'When two equal forces act in opposite directions, they are balanced. A balanced object stays still or moves at constant speed.'},
+{id:'sc21',diff:'easy',top:'Light',chapter:'Light & Sound',txt:'What do we need to see objects?',opts:['Only our eyes','Light reflected from objects','Sound waves','Electricity'],ans:1,exp:'We see objects because light reflects off them and enters our eyes.'},
+{id:'sc22',diff:'easy',top:'Sound',chapter:'Light & Sound',txt:'How does sound travel?',opts:['Through vibrations','Through light waves','Through gravity','Through magnetism'],ans:0,exp:'Sound travels as vibrations through a medium (solid, liquid, or gas).'},
+{id:'sc23',diff:'medium',top:'Reflection',chapter:'Light & Sound',txt:'What happens when light hits a mirror?',opts:['It is absorbed','It is reflected','It passes through','It is refracted'],ans:1,exp:'Mirrors reflect light — the angle of incidence equals the angle of reflection.'},
+{id:'sc24',diff:'medium',top:'Sound',chapter:'Light & Sound',txt:'What determines the pitch of a sound?',opts:['Volume','Frequency of vibrations','Distance from source','Material it travels through'],ans:1,exp:'Pitch is determined by frequency — high frequency vibrations make high-pitched sounds.'},
+{id:'sc25',diff:'hard',top:'Refraction',chapter:'Light & Sound',txt:'Why does a straw appear bent when placed in a glass of water?',opts:['The straw actually bends','Light refracts as it passes between water and air','The water magnifies the straw','Light reflects off the water surface'],ans:1,exp:'Light refracts (bends) when it passes from one medium to another, making the straw appear bent.'},
+{id:'sc26',diff:'easy',top:'Circuits',chapter:'Electricity',txt:'What is needed to make a complete electrical circuit?',opts:['Only a battery','A battery, wires, and a bulb in a complete loop','Just wires','Only a switch'],ans:1,exp:'A complete circuit needs a power source, conductors, and components all connected in a loop.'},
+{id:'sc27',diff:'easy',top:'Conductors',chapter:'Electricity',txt:'Which of these is an electrical conductor?',opts:['Rubber','Plastic','Metal','Wood'],ans:2,exp:'Metals are good electrical conductors — they allow electricity to flow through them easily.'},
+{id:'sc28',diff:'medium',top:'Series Circuits',chapter:'Electricity',txt:'What happens to bulbs in a series circuit if one bulb breaks?',opts:['Only that bulb goes out','All bulbs go out','The other bulbs get brighter','Nothing changes'],ans:1,exp:'In a series circuit, if one breaks, the circuit is incomplete and all bulbs go out.'},
+{id:'sc29',diff:'medium',top:'Switches',chapter:'Electricity',txt:'What does a switch do in a circuit?',opts:['Increases voltage','Breaks or completes the circuit','Stores electricity','Changes the direction of current'],ans:1,exp:'A switch breaks or completes a circuit — when open, no current flows; when closed, current can flow.'},
+{id:'sc30',diff:'hard',top:'Parallel Circuits',chapter:'Electricity',txt:'In a parallel circuit, what happens if one bulb breaks?',opts:['All bulbs go out','Only that bulb goes out','The circuit stops working','All bulbs get dimmer'],ans:1,exp:'In a parallel circuit, each component has its own path. If one bulb breaks, current still flows through the other paths.'}
+],
+geography:[
+{id:'geo1',diff:'easy',top:'UK Capitals',chapter:'UK Geography',txt:'What is the capital city of England?',opts:['Manchester','Birmingham','London','Edinburgh'],ans:2,exp:'London is the capital city of England and the United Kingdom.'},
+{id:'geo2',diff:'easy',top:'UK Rivers',chapter:'UK Geography',txt:'Which is the longest river in the UK?',opts:['River Thames','River Severn','River Trent','River Mersey'],ans:1,exp:'The River Severn is the longest river in the UK at approximately 354 km.'},
+{id:'geo3',diff:'easy',top:'UK Capitals',chapter:'UK Geography',txt:'What is the capital city of Scotland?',opts:['Glasgow','Aberdeen','Inverness','Edinburgh'],ans:3,exp:'Edinburgh is the capital city of Scotland.'},
+{id:'geo4',diff:'medium',top:'UK Mountains',chapter:'UK Geography',txt:'Which mountain is the highest in the UK?',opts:['Snowdon','Ben Nevis','Scafell Pike','Helvellyn'],ans:1,exp:'Ben Nevis in Scotland is the highest mountain in the UK at 1,345 metres.'},
+{id:'geo5',diff:'medium',top:'UK Oceans',chapter:'UK Geography',txt:'Which ocean lies to the west of the UK?',opts:['Pacific Ocean','Indian Ocean','Atlantic Ocean','Arctic Ocean'],ans:2,exp:'The Atlantic Ocean lies to the west of the United Kingdom.'},
+{id:'geo6',diff:'hard',top:'UK Landscapes',chapter:'UK Geography',txt:'What type of landscape is found in the Lake District?',opts:['Desert','Rainforest','Upland with lakes and mountains','Flat coastal plain'],ans:2,exp:'The Lake District is an upland area with mountains, valleys, and lakes formed by glaciation.'},
+{id:'geo7',diff:'easy',top:'Continents',chapter:'World Geography',txt:'How many continents are there on Earth?',opts:['5','6','7','8'],ans:2,exp:'There are 7 continents: Africa, Antarctica, Asia, Australia/Oceania, Europe, North America, and South America.'},
+{id:'geo8',diff:'easy',top:'Oceans',chapter:'World Geography',txt:'Which is the largest ocean in the world?',opts:['Atlantic Ocean','Indian Ocean','Arctic Ocean','Pacific Ocean'],ans:3,exp:'The Pacific Ocean is the largest ocean, covering more than 30% of Earth\'s surface.'},
+{id:'geo9',diff:'easy',top:'Continents',chapter:'World Geography',txt:'On which continent is Brazil located?',opts:['Africa','Asia','South America','North America'],ans:2,exp:'Brazil is located in South America.'},
+{id:'geo10',diff:'medium',top:'Latitude',chapter:'World Geography',txt:'Which line of latitude divides the Earth into Northern and Southern hemispheres?',opts:['Tropic of Cancer','Arctic Circle','Equator','Prime Meridian'],ans:2,exp:'The Equator is at 0° latitude and divides the Earth into the Northern and Southern hemispheres.'},
+{id:'geo11',diff:'medium',top:'Countries',chapter:'World Geography',txt:'Which is the largest country in the world by area?',opts:['China','USA','Canada','Russia'],ans:3,exp:'Russia is the largest country in the world by area, covering about 17.1 million km².'},
+{id:'geo12',diff:'hard',top:'Longitude',chapter:'World Geography',txt:'What is the Prime Meridian?',opts:['The line at 0° latitude','The line at 0° longitude passing through Greenwich','The Tropic of Cancer','The International Date Line'],ans:1,exp:'The Prime Meridian is the line of 0° longitude that passes through Greenwich, London.'},
+{id:'geo13',diff:'easy',top:'Weather vs Climate',chapter:'Climate',txt:'What is the difference between weather and climate?',opts:['They are the same thing','Weather is day-to-day conditions; climate is long-term patterns','Climate is daily; weather is yearly','Weather only happens in winter'],ans:1,exp:'Weather describes day-to-day conditions. Climate describes average weather patterns over a long period.'},
+{id:'geo14',diff:'easy',top:'Climate Zones',chapter:'Climate',txt:'Which climate zone is found near the Equator?',opts:['Polar','Temperate','Tropical','Desert'],ans:2,exp:'Tropical climates are found near the Equator. They are hot and wet all year round.'},
+{id:'geo15',diff:'medium',top:'Temperature',chapter:'Climate',txt:'Why is it hotter near the Equator than at the poles?',opts:['The Equator is closer to the Sun','Sunlight hits the Equator more directly at a steeper angle','The poles have more clouds','The Equator has less atmosphere'],ans:1,exp:'Near the Equator, sunlight hits Earth at a more direct angle, concentrating energy over a smaller area.'},
+{id:'geo16',diff:'medium',top:'UK Climate',chapter:'Climate',txt:'What type of climate does the UK have?',opts:['Tropical','Desert','Polar','Temperate maritime'],ans:3,exp:'The UK has a temperate maritime climate — mild temperatures, moderate rainfall, influenced by the Atlantic Ocean.'},
+{id:'geo17',diff:'hard',top:'Seasons',chapter:'Climate',txt:'What causes the seasons?',opts:['The Earth moving closer to and further from the Sun','The tilt of the Earth on its axis as it orbits the Sun','Changes in the Moon\'s position','Variations in the Sun\'s heat output'],ans:1,exp:'Seasons are caused by the Earth\'s axial tilt (23.5°). As Earth orbits the Sun, different hemispheres receive more direct sunlight at different times.'},
+{id:'geo18',diff:'easy',top:'Settlements',chapter:'Human Geography',txt:'What is a settlement?',opts:['A type of weather','A place where people live','A mountain range','A type of farming'],ans:1,exp:'A settlement is a place where people live, ranging from a small hamlet to a large city.'},
+{id:'geo19',diff:'easy',top:'Rivers',chapter:'Human Geography',txt:'What is a river delta?',opts:['The source of a river','Where a river begins in mountains','A fan-shaped area where a river meets the sea','A waterfall'],ans:2,exp:'A delta is a fan-shaped landform at the mouth of a river where it deposits sediment as it meets the sea.'},
+{id:'geo20',diff:'medium',top:'Urbanisation',chapter:'Human Geography',txt:'What is urbanisation?',opts:['The growth of rural areas','The movement of people from cities to the countryside','The increase in the proportion of people living in cities','The building of new farms'],ans:2,exp:'Urbanisation is the process by which an increasing proportion of a population lives in urban (city) areas.'},
+{id:'geo21',diff:'medium',top:'Erosion',chapter:'Human Geography',txt:'What is erosion?',opts:['The build-up of rock and soil','The wearing away and removal of rock and soil by wind, water, or ice','The movement of tectonic plates','The formation of mountains'],ans:1,exp:'Erosion is the wearing away and removal of rock and soil by agents such as wind, water, waves, and ice.'},
+{id:'geo22',diff:'hard',top:'Migration',chapter:'Human Geography',txt:'What is the difference between an immigrant and an emigrant?',opts:['They are the same','An immigrant moves into a country; an emigrant moves out','An emigrant moves into a country; an immigrant moves out','Both refer to internal migration'],ans:1,exp:'An immigrant moves INTO a country. An emigrant moves OUT of a country.'},
+{id:'geo23',diff:'easy',top:'Contour Lines',chapter:'Map Skills',txt:'What do contour lines on a map show?',opts:['Rivers','Roads','Height of the land','Population'],ans:2,exp:'Contour lines connect points of equal height above sea level.'},
+{id:'geo24',diff:'easy',top:'Map Key',chapter:'Map Skills',txt:'What does a map key (legend) show?',opts:['The scale of the map','The direction of north','What the symbols on the map mean','The age of the map'],ans:2,exp:'A map key explains what the symbols and colours on a map represent.'},
+{id:'geo25',diff:'easy',top:'Compass',chapter:'Map Skills',txt:'What are the four main compass points?',opts:['Up, Down, Left, Right','North, South, East, West','Top, Bottom, Side, Middle','Front, Back, Left, Right'],ans:1,exp:'The four cardinal compass points are North, South, East, and West.'},
+{id:'geo26',diff:'medium',top:'Grid References',chapter:'Map Skills',txt:'What is a grid reference used for?',opts:['Measuring distance','Finding a specific location on a map','Showing height','Indicating population'],ans:1,exp:'Grid references use numbered lines on a map to pinpoint exact locations. Read across first, then up.'},
+{id:'geo27',diff:'medium',top:'Scale',chapter:'Map Skills',txt:'What does the scale 1:50,000 on a map mean?',opts:['1cm on the map = 50,000cm in real life','1m on the map = 50,000m in real life','The map is 50,000 years old','There are 50,000 symbols on the map'],ans:0,exp:'A scale of 1:50,000 means 1cm on the map represents 50,000cm (500m) in real life.'},
+{id:'geo28',diff:'hard',top:'Compass',chapter:'Map Skills',txt:'If you are facing North and turn 90° clockwise, which direction are you now facing?',opts:['South','West','East','North-East'],ans:2,exp:'Turning 90° clockwise from North takes you to East.'},
+{id:'geo29',diff:'hard',top:'Longitude',chapter:'Map Skills',txt:'What are lines of longitude?',opts:['Horizontal lines measuring distance from the Equator','Vertical lines measuring distance east or west of the Prime Meridian','Lines showing height above sea level','Lines connecting cities'],ans:1,exp:'Lines of longitude (meridians) run vertically from pole to pole and measure how far east or west a location is from the Prime Meridian.'},
+{id:'geo30',diff:'hard',top:'OS Maps',chapter:'Map Skills',txt:'What is an Ordnance Survey (OS) map?',opts:['A map of the ocean floor','A detailed map of the UK made by the national mapping agency','A map showing only roads','A weather map'],ans:1,exp:'Ordnance Survey (OS) maps are detailed maps of Great Britain produced by the national mapping agency.'}
+],
+computing:[
+{id:'cp1',diff:'easy',top:'Algorithms',chapter:'Algorithms',txt:'What is an algorithm?',opts:['A type of computer','A step-by-step set of instructions to solve a problem','A programming language','A type of data'],ans:1,exp:'An algorithm is a precise, step-by-step set of instructions for solving a problem or completing a task.'},
+{id:'cp2',diff:'easy',top:'Loops',chapter:'Algorithms',txt:'What does a loop do in a program?',opts:['Stops the program','Repeats a set of instructions','Skips instructions','Deletes data'],ans:1,exp:'A loop repeats a set of instructions a specified number of times or until a condition is met.'},
+{id:'cp3',diff:'easy',top:'Debugging',chapter:'Algorithms',txt:'What is a bug in a computer program?',opts:['A type of virus','An error or mistake in the code','A feature of the program','A type of loop'],ans:1,exp:'A bug is an error or mistake in a computer program that causes it to behave unexpectedly.'},
+{id:'cp4',diff:'medium',top:'Debugging',chapter:'Algorithms',txt:'What is debugging?',opts:['Writing new code','Finding and fixing errors in a program','Deleting a program','Running a program'],ans:1,exp:'Debugging is the process of finding and fixing errors (bugs) in a computer program.'},
+{id:'cp5',diff:'medium',top:'Conditionals',chapter:'Algorithms',txt:'What is a conditional statement (if/else) used for?',opts:['To repeat code','To make decisions based on whether a condition is true or false','To store data','To end a program'],ans:1,exp:'A conditional statement allows a program to make decisions — if a condition is true, one set of instructions runs; otherwise, another set runs.'},
+{id:'cp6',diff:'hard',top:'Loops',chapter:'Algorithms',txt:'What is the difference between a count-controlled loop and a condition-controlled loop?',opts:['They are the same','A count-controlled loop repeats a set number of times; a condition-controlled loop repeats until a condition is met','A condition-controlled loop repeats a set number of times','Count-controlled loops are faster'],ans:1,exp:'A count-controlled loop (for loop) repeats a fixed number of times. A condition-controlled loop (while loop) repeats until a condition becomes false.'},
+{id:'cp7',diff:'easy',top:'Data',chapter:'Data',txt:'What is data?',opts:['A type of computer','Raw facts and figures','A finished report','A computer program'],ans:1,exp:'Data is raw facts and figures. When processed, data becomes information.'},
+{id:'cp8',diff:'easy',top:'Databases',chapter:'Data',txt:'What does a database store?',opts:['Only images','Organised collections of data','Only text','Computer programs'],ans:1,exp:'A database is an organised collection of structured data that can be easily accessed and managed.'},
+{id:'cp9',diff:'medium',top:'Spreadsheets',chapter:'Data',txt:'What is a spreadsheet used for?',opts:['Drawing pictures','Organising and calculating data in rows and columns','Sending emails','Browsing the internet'],ans:1,exp:'A spreadsheet organises data in rows and columns and can perform calculations automatically using formulas.'},
+{id:'cp10',diff:'medium',top:'Binary',chapter:'Data',txt:'What does binary mean in computing?',opts:['A type of virus','A number system using only 0s and 1s','A programming language','A type of database'],ans:1,exp:'Binary is a base-2 number system using only two digits: 0 and 1. All computer data is stored in binary.'},
+{id:'cp11',diff:'hard',top:'Binary',chapter:'Data',txt:'What is a bit?',opts:['A small piece of food','The smallest unit of data in computing (0 or 1)','A type of processor','A unit of speed'],ans:1,exp:'A bit (binary digit) is the smallest unit of data in computing. Eight bits make one byte.'},
+{id:'cp12',diff:'hard',top:'Databases',chapter:'Data',txt:'What does "sorting" data mean in a database?',opts:['Deleting unwanted data','Arranging data in a specific order (e.g. alphabetical or numerical)','Searching for specific data','Backing up data'],ans:1,exp:'Sorting arranges data in a specific order — alphabetically, numerically, or by date.'},
+{id:'cp13',diff:'easy',top:'Internet',chapter:'Networks',txt:'What is the internet?',opts:['A single computer','A global network of connected computers','A type of software','A social media platform'],ans:1,exp:'The internet is a global network of billions of connected computers and devices.'},
+{id:'cp14',diff:'easy',top:'WWW',chapter:'Networks',txt:'What does WWW stand for?',opts:['World Wide Web','World Wide Window','Wide Web World','World Web Wide'],ans:0,exp:'WWW stands for World Wide Web — a system of web pages accessible through the internet.'},
+{id:'cp15',diff:'medium',top:'Routers',chapter:'Networks',txt:'What is a router?',opts:['A type of printer','A device that directs data between networks and connects devices to the internet','A type of monitor','A storage device'],ans:1,exp:'A router is a networking device that directs data packets between networks and connects devices to the internet.'},
+{id:'cp16',diff:'medium',top:'HTTPS',chapter:'Networks',txt:'What does HTTPS mean in a web address?',opts:['The website is very fast','The connection is secure and encrypted','The website is free','The website is popular'],ans:1,exp:'HTTPS means the connection between your browser and the website is encrypted and secure.'},
+{id:'cp17',diff:'hard',top:'IP Addresses',chapter:'Networks',txt:'What is an IP address?',opts:['A type of computer virus','A unique numerical label assigned to each device on a network','A type of password','A web browser'],ans:1,exp:'An IP (Internet Protocol) address is a unique numerical label assigned to each device on a network.'},
+{id:'cp18',diff:'hard',top:'Internet vs WWW',chapter:'Networks',txt:'What is the difference between the internet and the World Wide Web?',opts:['They are the same thing','The internet is the global network infrastructure; the WWW is a service that runs on it','The WWW is the network; the internet is a website','The internet is only for emails'],ans:1,exp:'The internet is the physical global network. The World Wide Web is one service that runs on the internet.'},
+{id:'cp19',diff:'easy',top:'Personal Safety',chapter:'Online Safety',txt:'What should you do if someone online asks for your personal information?',opts:['Share it if they seem friendly','Never share personal information with strangers online','Share only your name','Share your address but not your phone number'],ans:1,exp:'Never share personal information with strangers online. Tell a trusted adult if this happens.'},
+{id:'cp20',diff:'easy',top:'Cyberbullying',chapter:'Online Safety',txt:'What is cyberbullying?',opts:['Playing games online','Using technology to bully, harass, or intimidate someone','Sharing funny videos','Sending emails'],ans:1,exp:'Cyberbullying is using digital technology to bully, harass, threaten, or embarrass someone.'},
+{id:'cp21',diff:'medium',top:'Passwords',chapter:'Online Safety',txt:'What is a strong password?',opts:['Your name','Your birthday','A mix of upper and lower case letters, numbers, and symbols','A simple word'],ans:2,exp:'A strong password uses a mix of uppercase and lowercase letters, numbers, and symbols.'},
+{id:'cp22',diff:'medium',top:'HTTPS',chapter:'Online Safety',txt:'What does it mean if a website has a padlock icon in the address bar?',opts:['The website is locked and you cannot access it','The connection is secure and encrypted','The website is free','The website is popular'],ans:1,exp:'A padlock icon means the website uses HTTPS — the connection is encrypted and secure.'},
+{id:'cp23',diff:'hard',top:'Phishing',chapter:'Online Safety',txt:'What is phishing?',opts:['A type of online game','A fraudulent attempt to obtain sensitive information by pretending to be a trustworthy source','A type of computer virus','A way to speed up your internet'],ans:1,exp:'Phishing is a type of cyber attack where criminals pretend to be a trusted organisation to trick you into revealing passwords or personal information.'},
+{id:'cp24',diff:'hard',top:'Phishing',chapter:'Online Safety',txt:'What should you do if you receive an email asking you to click a link and enter your password?',opts:['Click the link and enter your password','Delete the email and report it as phishing','Forward it to friends','Reply asking for more information'],ans:1,exp:'This is likely a phishing attempt. Never click suspicious links or enter passwords from emails.'},
+{id:'cp25',diff:'easy',top:'Search Engines',chapter:'Digital Literacy',txt:'What is a search engine?',opts:['A type of computer','A program that searches the internet for information based on keywords','A type of email','A social media platform'],ans:1,exp:'A search engine (like Google or Bing) searches the internet and returns relevant web pages based on keywords.'},
+{id:'cp26',diff:'easy',top:'Copy & Paste',chapter:'Digital Literacy',txt:'What does "copy and paste" mean?',opts:['Deleting text','Duplicating content from one place and inserting it in another','Printing a document','Saving a file'],ans:1,exp:'Copy and paste duplicates selected content from one location and inserts it in another.'},
+{id:'cp27',diff:'medium',top:'Copyright',chapter:'Digital Literacy',txt:'What is copyright?',opts:['The right to copy anything from the internet','The legal right of creators to control how their work is used','A type of computer virus','A way to share files'],ans:1,exp:'Copyright is the legal right that gives creators control over how their work is used, copied, or distributed.'},
+{id:'cp28',diff:'medium',top:'Reliability',chapter:'Digital Literacy',txt:'What does it mean to evaluate a website for reliability?',opts:['Checking how fast it loads','Assessing whether the information is accurate, up-to-date, and from a trustworthy source','Counting how many pages it has','Checking its design'],ans:1,exp:'Evaluating reliability means checking: Who wrote it? When was it updated? Is it from a trusted source?'},
+{id:'cp29',diff:'hard',top:'AI',chapter:'Digital Literacy',txt:'What is artificial intelligence (AI)?',opts:['A type of robot','Computer systems that can perform tasks that normally require human intelligence','A social media platform','A type of database'],ans:1,exp:'AI refers to computer systems designed to perform tasks that typically require human intelligence.'},
+{id:'cp30',diff:'hard',top:'Hardware vs Software',chapter:'Digital Literacy',txt:'What is the difference between hardware and software?',opts:['They are the same','Hardware is the physical components of a computer; software is the programs and operating systems','Software is the physical parts; hardware is the programs','Hardware is only the keyboard and mouse'],ans:1,exp:'Hardware = physical components (CPU, keyboard, monitor). Software = programs and operating systems.'}
+]
+};
+
+var TIPS={'Sentence Types':'Learn the four types: statement (.), question (?), command (verb first), exclamation (What/How + !).','Word Classes':'Noun=thing, Verb=action, Adjective=describes noun, Adverb=describes verb.','Punctuation':'? for questions, ! for exclamations, . for statements. Commas after fronted adverbials.','Conjunctions':'Coordinating: and, but, or. Subordinating: because, when, if, although, while.','Apostrophes':'Two uses: possession (Sara\'s bag) and contraction (don\'t = do not).','Verb Tense':'Key irregular verbs: run→ran, go→went, see→saw, take→took, catch→caught.','Prefixes':'un- (not), re- (again), pre- (before), mis- (wrongly), dis- (not/opposite).','Suffixes':'-ly (adverb), -ness (noun), -ful (adjective), -less (without).','Commas':'After fronted adverbials, around relative clauses, in lists.','Plurals':'Add -s for most words. Add -es for words ending in -s, -sh, -ch, -x, -z.','Subjunctive':'After: insist, suggest, recommend + "that". E.g. "I suggest that he be present."','Passive Voice':'Object + was/were + past participle + by + agent.','Complex Punctuation':'Semicolons join two related independent clauses.','Formal Register':'No contractions, no slang. Use passive voice and precise vocabulary.','Modal Verbs':'Must=certainty, should=advice, might/may/could=possibility, will=future.','Relative Clauses':'"Who" for people, "which" for things, "whose" for possession.','Addition':'Line up digits carefully. Carry tens when the sum exceeds 9.','Subtraction':'Use inverse operations to check. Borrow from the next column when needed.','Fractions':'To find a fraction, divide by the denominator then multiply by the numerator.','Multiplication':'Learn times tables to 12x12.','Division':'Division is the inverse of multiplication. Check with multiplication.','Missing Numbers':'Use inverse operations: if a + b = c, then c - b = a.','Large Numbers':'Work column by column. Carry and borrow carefully.','Percentages':'25% = 1/4, 50% = 1/2, 75% = 3/4, 10% = divide by 10.','Money':'Convert to pence to avoid decimal errors.','Sharing':'Division is sharing equally. Check by multiplying your answer.','Multi-step':'Read carefully. Identify each step. Show your working.','Word Problems':'Underline key numbers. Write a number sentence before calculating.','Living Things':'Remember MRS NERG: Movement, Respiration, Sensitivity, Nutrition, Excretion, Reproduction, Growth.','Food Chains':'Producers (plants) → Primary consumers → Secondary consumers. Energy flows along the chain.','Photosynthesis':'Plants need sunlight + water + CO2 → glucose + oxygen.','Human Body':'Heart pumps blood. Lungs exchange gases. Carbohydrates provide energy.','Healthy Living':'Balanced diet + exercise + sleep = healthy lifestyle.','Nutrition':'Carbohydrates=energy, Protein=growth, Fat=insulation, Vitamins=health, Minerals=bones.','Conductors':'Metals conduct electricity. Non-metals (rubber, plastic, wood) are insulators.','Properties':'Transparent=lets light through. Opaque=blocks light. Translucent=lets some light through.','Changes':'Reversible: melting, dissolving. Irreversible: burning, cooking, rusting.','States of Matter':'Solid→Liquid (melting), Liquid→Gas (evaporation), Gas→Liquid (condensation).','Gravity':'Gravity pulls objects towards Earth. Weight = mass x gravity.','Friction':'Friction opposes motion. Rough surfaces = more friction.','Air Resistance':'Larger surface area = more air resistance = slower speed.','Measurement':'Force in Newtons. Mass in kg. Distance in metres.','Balanced Forces':'Equal forces in opposite directions = balanced = no change in motion.','Light':'Light travels in straight lines. Reflects off mirrors. Refracts when passing between materials.','Sound':'Sound = vibrations. Higher frequency = higher pitch. Louder = greater amplitude.','Reflection':'Angle of incidence = angle of reflection.','Refraction':'Light bends when passing between different materials (e.g. air to water).','Circuits':'Complete loop needed. Series: one path. Parallel: multiple paths.','Switches':'Open switch = broken circuit. Closed switch = complete circuit.','Series Circuits':'All components share one path. One break = all stop.','Parallel Circuits':'Each component has its own path. One break = others continue.','UK Capitals':'England=London, Scotland=Edinburgh, Wales=Cardiff, N.Ireland=Belfast.','UK Rivers':'Severn (longest), Thames (London), Trent, Mersey.','UK Mountains':'Ben Nevis (Scotland, highest), Snowdon (Wales), Scafell Pike (England).','UK Oceans':'Atlantic (west), North Sea (east), English Channel (south).','UK Landscapes':'Uplands (mountains), lowlands (flat), coastal (beaches, cliffs).','Continents':'7 continents: Africa, Antarctica, Asia, Australia, Europe, N.America, S.America.','Oceans':'5 oceans: Pacific (largest), Atlantic, Indian, Arctic, Southern.','Countries':'Russia (largest by area). China (largest by population).','Latitude':'Equator = 0°. North Pole = 90°N. South Pole = 90°S.','Longitude':'Prime Meridian = 0°. Runs through Greenwich, London.','Weather vs Climate':'Weather = day-to-day. Climate = long-term average (30+ years).','Climate Zones':'Tropical (hot/wet near Equator), Temperate (mild), Polar (cold), Desert (dry).','Temperature':'Hotter near Equator (direct sunlight). Colder at poles (angled sunlight).','UK Climate':'Temperate maritime: mild, wet, influenced by Atlantic Ocean.','Seasons':'Caused by Earth\'s axial tilt (23.5°) as it orbits the Sun.','Settlements':'Hamlet < Village < Town < City. Urban = city. Rural = countryside.','Rivers':'Source (start) → Tributary → Meander → Mouth (end at sea). Delta = fan-shaped deposit.','Urbanisation':'More people moving to cities. Causes: jobs, services, opportunities.','Erosion':'Wearing away of land by wind, water, ice, waves.','Migration':'Immigrant = moves in. Emigrant = moves out. Push factors (war) vs pull factors (jobs).','Contour Lines':'Close together = steep slope. Far apart = gentle slope. Same height = same contour.','Map Key':'Explains symbols and colours on a map.','Compass':'N, S, E, W. NE, NW, SE, SW. Clockwise: N→E→S→W.','Grid References':'Along the corridor (x-axis), up the stairs (y-axis). 4-figure then 6-figure.','Scale':'1:50,000 means 1cm = 500m. 1:25,000 means 1cm = 250m.','Longitude':'Lines of longitude = meridians. Run north-south. Measure east/west of Prime Meridian.','OS Maps':'Ordnance Survey maps of Great Britain. Show physical and human features.','Algorithms':'Step-by-step instructions. Must be precise, unambiguous, and in the right order.','Loops':'Count-controlled (for): fixed number of times. Condition-controlled (while): until condition met.','Debugging':'Test each part separately. Use print statements to check values.','Conditionals':'if (condition) then (action) else (alternative action).','Data':'Raw facts → processed → information → knowledge.','Databases':'Organised data. Can sort, search, and filter. Fields, records, tables.','Spreadsheets':'Rows and columns. Formulas start with =. SUM, AVERAGE, COUNT.','Binary':'Base-2: only 0 and 1. 8 bits = 1 byte. 1024 bytes = 1 kilobyte.','Internet':'Global network of networks. Uses TCP/IP protocol.','WWW':'Collection of web pages. Accessed via browser. Uses HTTP/HTTPS.','Routers':'Direct data packets between networks. Home router connects to ISP.','HTTPS':'Secure, encrypted connection. Look for padlock icon.','IP Addresses':'Unique address for each device. IPv4: 4 numbers (e.g. 192.168.1.1).','Internet vs WWW':'Internet = infrastructure. WWW = service on the internet.','Personal Safety':'SMART rules: Safe, Meet, Accept, Reliable, Tell.','Cyberbullying':'Report to trusted adult. Block the bully. Save evidence.','Passwords':'Long, unique, mix of characters. Use a password manager. Never share.','Phishing':'Check sender\'s email address. Hover over links. Never enter passwords from emails.','Search Engines':'Use specific keywords. Evaluate results for reliability.','Copyright':'Ask permission or use Creative Commons licensed content.','Reliability':'Check: author, date, sources, bias, corroboration.','AI':'Machine learning, natural language processing, computer vision.','Hardware vs Software':'Hardware = physical. Software = programs. OS = operating system.'};
+
+// STATE
+var sess=[],selSubjKey='grammar',selDiffKey='easy',qs=[],curQ=0,ans=[],ansd=false;
+
+// CONNECTION
+function setBanner(type,msg,showRetry){var b=document.getElementById('connBanner'),m=document.getElementById('connMsg'),btn=document.getElementById('connBtn');b.className='connbanner '+type;m.textContent=msg;btn.style.display=showRetry?'inline-block':'none';var d=document.getElementById('sdot'),l=document.getElementById('slbl');d.className='sdot '+(type==='ok'?'ok':type==='sy'?'sy':'er');l.textContent=type==='ok'?'☁️ Synced':type==='sy'?'Syncing…':'⚠️ Offline';}
+function retryConn(){setBanner('sy','🔄 Retrying…',false);initApp();}
+function initApp(){setBanner('sy','🔄 Connecting to cloud…',false);DB.loadAll().then(function(data){sess=data;sess.sort(function(a,b){return a.date.localeCompare(b.date);});setBanner('ok','✅ Connected to cloud — scores sync across all devices',false);setTimeout(function(){document.getElementById('connBanner').classList.add('hid');},4000);updStats();updTable();}).catch(function(e){var msg=e&&e.message?e.message:String(e);var hint=msg.indexOf('403')!==-1||msg.indexOf('PERMISSION')!==-1?'❌ Firebase Rules blocking access. Go to Firebase Console → Firestore → Rules → publish: allow read, write: if true':msg.indexOf('Failed to fetch')!==-1||msg.indexOf('Load failed')!==-1?'❌ No internet connection. Connect to WiFi and tap Retry.':'❌ Could not connect: '+msg;setBanner('er',hint,true);});}
+
+// NAV
+function showP(id,btn){document.querySelectorAll('.pnl').forEach(function(p){p.classList.remove('on');});document.querySelectorAll('.ntab').forEach(function(t){t.classList.remove('on');});document.getElementById('pnl-'+id).classList.add('on');if(btn)btn.classList.add('on');if(id==='dash'){refreshD();setTimeout(v4Dashboard,50);}}
+
+// QUIZ
+function selSubj(k,btn){selSubjKey=k;document.querySelectorAll('.sbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');}
+function selDiff(k,btn){selDiffKey=k;document.querySelectorAll('.dbtn').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');}
+function pickRandom(arr,n){return arr.slice().sort(function(){return Math.random()-.5;}).slice(0,n);}
+function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function gcd(a,b){while(b){var t=b;b=a%b;a=t;}return Math.abs(a);}
+function makeMCQ(id,diff,top,txt,correct,wrong,exp,sen){
+  var vals=[String(correct)],i=0;
+  wrong=wrong||[];
+  while(vals.length<4&&i<wrong.length){var w=String(wrong[i++]);if(vals.indexOf(w)<0)vals.push(w);}
+  while(vals.length<4){var base=Number(correct),w2=isNaN(base)?String(correct)+' '+vals.length:String(base+rnd(1,12)*(vals.length%2?1:-1));if(vals.indexOf(w2)<0)vals.push(w2);}
+  vals=pickRandom(vals,vals.length);
+  return {id:id,diff:diff,top:top,txt:txt,sen:sen||'',opts:vals,ans:vals.indexOf(String(correct)),exp:exp};
+}
+function genArithmetic(diff,n){
+  var out=[],seen={},tries=0;
+  var levels=diff==='mixed'?['easy','medium','hard']:[diff];
+  while(out.length<n&&tries++<500){
+    var d=levels[out.length%levels.length],q,k=rnd(0,d==='hard'?7:d==='medium'?5:3),a,b,c,ans,den,num,pct,total;
+    if(k===0){a=rnd(d==='easy'?20:200,d==='hard'?9999:999);b=rnd(d==='easy'?10:100,d==='hard'?4999:900);ans=a+b;q=makeMCQ('da'+tries,d,'Addition','What is '+a+' + '+b+'?',ans,[ans+10,ans-10,ans+100],a+' + '+b+' = '+ans+'.');}
+    else if(k===1){a=rnd(d==='easy'?50:500,d==='hard'?5000:999);b=rnd(10,a-1);ans=a-b;q=makeMCQ('ds'+tries,d,'Subtraction','What is '+a+' - '+b+'?',ans,[ans+10,ans-10,ans+100],a+' - '+b+' = '+ans+'.');}
+    else if(k===2){a=rnd(3,d==='hard'?99:12);b=rnd(3,d==='hard'?25:12);ans=a*b;q=makeMCQ('dm'+tries,d,'Multiplication','What is '+a+' × '+b+'?',ans,[ans+a,ans-b,ans+10],a+' × '+b+' = '+ans+'.');}
+    else if(k===3){b=rnd(3,d==='hard'?25:12);ans=rnd(3,d==='hard'?60:12);a=b*ans;q=makeMCQ('dd'+tries,d,'Division','What is '+a+' ÷ '+b+'?',ans,[ans+1,ans-1,ans+2],a+' ÷ '+b+' = '+ans+'.');}
+    else if(k===4){den=[4,5,8,10][rnd(0,3)];num=rnd(1,den-1);total=den*rnd(4,d==='hard'?30:15);ans=total/den*num;q=makeMCQ('df'+tries,d,'Fractions','What is '+num+'/'+den+' of '+total+'?',ans,[total/den,ans+total/den,ans-total/den],total+' ÷ '+den+' × '+num+' = '+ans+'.');}
+    else if(k===5){pct=[10,20,25,40,50,75][rnd(0,5)];total=(pct===25||pct===75?4:10)*rnd(5,d==='hard'?40:20);ans=total*pct/100;q=makeMCQ('dp'+tries,d,'Percentages','What is '+pct+'% of '+total+'?',ans,[total*(100-pct)/100,ans+5,ans-5],pct+'% of '+total+' = '+ans+'.');}
+    else if(k===6){a=rnd(3,15);b=rnd(2,10);c=rnd(2,12);ans=a+b*c;q=makeMCQ('db'+tries,d,'Order of Operations','What is '+a+' + '+b+' × '+c+'?',ans,[(a+b)*c,a+b+c,ans-b], 'Multiply first: '+b+' × '+c+' = '+(b*c)+', then add '+a+' = '+ans+'.');}
+    else{a=rnd(2,9);b=rnd(2,9);c=rnd(3,15);ans=b*c;q=makeMCQ('dr'+tries,d,'Ratio','The ratio of red to blue counters is '+a+':'+b+'. If there are '+(a*c)+' red counters, how many blue counters are there?',ans,[a*c,(a+b)*c,ans+c], 'The scale factor is '+c+', so '+b+' × '+c+' = '+ans+'.');}
+    var sig=q.txt;if(!seen[sig]){seen[sig]=1;out.push(q);}
+  }
+  return out;
+}
+function genReasoning(diff,n){
+  var out=[],seen={},tries=0,levels=diff==='mixed'?['easy','medium','hard']:[diff];
+  while(out.length<n&&tries++<500){
+    var d=levels[out.length%levels.length],q,k=rnd(0,d==='hard'?5:d==='medium'?3:2),a,b,c,ans,price,paid,start,step;
+    if(k===0){a=rnd(3,12);b=rnd(4,20);c=rnd(2,a-1);ans=(a-c)*b;q=makeMCQ('rw'+tries,d,'Multi-step','A shop has '+a+' boxes with '+b+' pencils in each. It sells '+c+' full boxes. How many pencils remain?',ans,[a*b-c,(a-c)+b,a*b-c*b+b], 'Remaining boxes: '+a+' - '+c+' = '+(a-c)+'. Then '+(a-c)+' × '+b+' = '+ans+'.');}
+    else if(k===1){price=rnd(12,d==='hard'?85:50);a=rnd(2,d==='hard'?8:5);paid=Math.ceil(price*a/100)*100;ans=paid-price*a;q=makeMCQ('rm'+tries,d,'Money','Each ticket costs '+price+'p. Mia buys '+a+' tickets and pays £'+(paid/100).toFixed(2)+'. How much change does she receive?',ans+'p',[ans+10+'p',Math.max(0,ans-10)+'p',price*a+'p'],a+' × '+price+'p = '+(a*price)+'p. Change = '+paid+'p - '+(a*price)+'p = '+ans+'p.');}
+    else if(k===2){start=rnd(2,20);step=rnd(2,d==='hard'?12:7);ans=start+4*step;q=makeMCQ('rs'+tries,d,'Sequences','What is the next number?',ans,[ans-step,ans+step,ans+2*step], 'The rule is add '+step+'.',start+', '+(start+step)+', '+(start+2*step)+', '+(start+3*step)+', ___');}
+    else if(k===3){a=rnd(4,18);b=rnd(3,15);ans=2*(a+b);q=makeMCQ('rg'+tries,d,'Geometry','A rectangle is '+a+' cm long and '+b+' cm wide. What is its perimeter?',ans,[a*b,a+b,2*a+b], 'Perimeter = 2 × ('+a+' + '+b+') = '+ans+' cm.');}
+    else if(k===4){a=rnd(2,8);b=rnd(2,8);c=rnd(3,12);ans=b*c;q=makeMCQ('rr'+tries,d,'Ratio','Orange and apple juices are mixed in the ratio '+a+':'+b+'. If '+(a*c)+' ml of orange juice is used, how much apple juice is needed?',ans+' ml',[a*c+' ml',(a+b)*c+' ml',(ans+c)+' ml'],'The scale factor is '+c+', so '+b+' × '+c+' = '+ans+' ml.');}
+    else{a=rnd(30,90);b=rnd(2,5);c=rnd(5,20);ans=a*b-c;q=makeMCQ('rt'+tries,d,'Multi-step','A coach travels '+a+' km each hour for '+b+' hours, then travels '+c+' km less because of a diversion. How far does it travel altogether?',ans+' km',[a*b+' km',(a-c)*b+' km',(ans+c)+' km'],a+' × '+b+' = '+(a*b)+' km, then subtract '+c+' km = '+ans+' km.');}
+    var sig=q.txt+'|'+q.sen;if(!seen[sig]){seen[sig]=1;out.push(q);}
+  }
+  return out;
+}
+function topicHistory(subject){
+  var out={};sess.filter(function(s){return s.subject===subject&&s.topicResults;}).slice(-20).forEach(function(s){
+    Object.keys(s.topicResults).forEach(function(t){var d=s.topicResults[t];if(!out[t])out[t]={ok:0,tot:0};out[t].ok+=d.ok||0;out[t].tot+=d.tot||0;});
+  });return out;
+}
+function adaptivePick(pool,n,subject){
+  var hist=topicHistory(subject), bag=[];
+  pool.forEach(function(q){var h=hist[q.top],acc=h&&h.tot?h.ok/h.tot:.65;var weight=Math.max(1,Math.round((1.15-acc)*8));for(var i=0;i<weight;i++)bag.push(q);});
+  var out=[],used={};while(out.length<n&&bag.length){var q=bag[Math.floor(Math.random()*bag.length)];var sig=q.txt+'|'+(q.sen||'');if(!used[sig]){used[sig]=1;out.push(q);}bag=bag.filter(function(x){return x!==q;});}
+  if(out.length<n)pickRandom(pool,n-out.length).forEach(function(q){if(out.indexOf(q)<0)out.push(q);});return out.slice(0,n);
+}
+function genComprehension(d,n){
+  var names=['Aisha','Leo','Maya','Noah','Sofia','Harun'],places=['coastal observatory','ancient woodland','city museum','wildlife reserve','mountain village'],objects=['weather journal','silver compass','bundle of letters','faded map','small brass key'];
+  var moods=['cautiously','eagerly','reluctantly','silently'];var out=[];
+  while(out.length<n){var name=names[rnd(0,names.length-1)],place=places[rnd(0,places.length-1)],obj=objects[rnd(0,objects.length-1)],mood=moods[rnd(0,moods.length-1)];var minutes=rnd(18,55);
+    var passage=name+' arrived at the '+place+' '+mood+'. During a careful search, '+name+' discovered a '+obj+' beneath a loose wooden board. Although only '+minutes+' minutes remained before closing, '+name+' chose to examine the find and record every detail before asking the guide for help.';
+    var set=[
+      {top:'Retrieval',txt:'Where did '+name+' arrive?',opts:[place,'a railway station','a school hall','a sports centre'],ans:0,exp:'The opening sentence names the '+place+'.'},
+      {top:'Vocabulary',txt:'Which word best matches “cautiously” in this passage?',opts:['carefully','noisily','carelessly','suddenly'],ans:0,exp:'Cautiously means carefully, with attention to possible risk.'},
+      {top:'Inference',txt:'What does '+name+'’s decision suggest?',opts:['They were methodical and responsible.','They wanted to hide the object.','They disliked the guide.','They had forgotten the closing time.'],ans:0,exp:'Recording details and then asking for help shows a careful, responsible approach.'},
+      {top:'Evidence',txt:'Which detail creates time pressure?',opts:[minutes+' minutes remained before closing.','The board was wooden.','A guide worked there.','The object was underneath something.'],ans:0,exp:'The limited time before closing creates urgency.'}
+    ];
+    set.forEach(function(q){q.id='c'+Date.now()+Math.random();q.diff=d==='mixed'?'hard':d;q.sen=passage;var correct=q.opts[q.ans],sh=pickRandom(q.opts,q.opts.length);q.opts=sh;q.ans=sh.indexOf(correct);});out=out.concat(set);
+  }return out.slice(0,n);
+}
+function buildQuiz(){
+  var pool;if(selSubjKey==='arithmetic')pool=genArithmetic(selDiffKey,60);else if(selSubjKey==='reasoning')pool=genReasoning(selDiffKey,60);else if(selSubjKey==='comprehension')pool=genComprehension(selDiffKey,40);else{pool=BANK[selSubjKey]||[];pool=selDiffKey==='mixed'?pool:pool.filter(function(q){return q.diff===selDiffKey;});if(!pool.length)pool=BANK[selSubjKey]||[];}
+  return adaptivePick(pool,Math.min(15,pool.length),selSubjKey);
+}
+function startDailyPaper(){
+  var core=['grammar','arithmetic','reasoning','comprehension'];var best='arithmetic',score=101;
+  core.forEach(function(s){var vals=sess.filter(function(x){return x.subject===s;}).slice(-5).map(function(x){return x.pct||0;});var a=vals.length?vals.reduce(function(x,y){return x+y;},0)/vals.length:50;if(a<score){score=a;best=s;}});
+  selSubjKey=best;selDiffKey=score>=75?'hard':score>=55?'medium':'mixed';startQ();toast('📅 Today’s paper focuses on '+best+' ('+Math.round(score)+'% recent average).');
+}
+function v4Dashboard(){
+  if(!document.getElementById('v4Ready'))return;var core=['grammar','arithmetic','reasoning'],vals=[];
+  core.forEach(function(s){var a=subjAvg(s);if(a!==null)vals.push(a);});var coverage=vals.length/3;var ready=vals.length?Math.round(vals.reduce(function(a,b){return a+b;},0)/vals.length*coverage):0;
+  document.getElementById('v4Ready').textContent=ready+'%';document.getElementById('v4ReadyText').textContent=coverage<1?'Complete all 3 core subjects for a full readiness score.':ready>=80?'Strong readiness — keep practising hard questions.':ready>=60?'Developing readiness — target weaker topics.':'More focused practice is recommended.';
+  var all={};sess.filter(function(s){return s.topicResults;}).slice(-30).forEach(function(s){Object.keys(s.topicResults).forEach(function(t){var d=s.topicResults[t];if(!all[t])all[t]={ok:0,tot:0};all[t].ok+=d.ok||0;all[t].tot+=d.tot||0;});});
+  var arr=Object.keys(all).map(function(t){return{t:t,p:Math.round(all[t].ok/all[t].tot*100)};}).sort(function(a,b){return a.p-b.p;});document.getElementById('v4Weak').innerHTML=arr.length?'Focus next: <strong>'+arr.slice(0,3).map(function(x){return x.t+' ('+x.p+'%)';}).join(', ')+'</strong>':'No topic history yet.';
+  document.getElementById('v4Mastery').innerHTML=arr.length?arr.slice().sort(function(a,b){return b.p-a.p;}).slice(0,8).map(function(x){return '<div class="v4mi"><strong>'+x.t+'</strong><br>'+x.p+'% · '+(x.p>=80?'Mastered':x.p>=60?'Developing':'Focus')+'</div>';}).join(''):'<div class="v4mi">Complete a V4 quiz to begin.</div>';
+}
+function startQ(){qs=buildQuiz();ans=qs.map(function(){return{done:false,ok:false,ch:-1};});curQ=0;document.getElementById('qwelcome').style.display='none';document.getElementById('qresults').style.display='none';document.getElementById('qquestion').style.display='block';renderQ();}
+
+var SUBJ_LABELS={'grammar':'🔤 Grammar','arithmetic':'➕ Arithmetic','reasoning':'🧠 Reasoning','science':'🔬 Science','geography':'🌍 Geography','computing':'💻 Computing','comprehension':'📖 Comprehension'};
+var DIFF_COLORS={'easy':'#16a34a','medium':'#d97706','hard':'#dc2626','mixed':'#4f46e5'};
+
+function renderQ(){var q=qs[curQ],a=ans[curQ];ansd=a.done;var L=['A','B','C','D'];var tt=q.top?'<span class="qtag" style="background:'+DIFF_COLORS[q.diff]+'22;color:'+DIFF_COLORS[q.diff]+';">'+q.top+'</span>':'';var ch=q.chapter?'<span class="qtag" style="background:var(--g1);color:var(--g6);font-size:.64rem;">'+q.chapter+'</span>':'';var sh=q.sen?'<div class="qsen">'+q.sen+'</div>':'';var oh=q.opts.map(function(o,i){var c='';if(a.done){if(i===q.ans)c='ok';else if(i===a.ch&&i!==q.ans)c='wr';}return'<button class="obtn '+c+'" onclick="chOpt('+i+')" '+(a.done?'disabled':'')+' id="o'+i+'"><div class="ol">'+L[i]+'</div><div>'+o+'</div></button>';}).join('');var fh=a.done?'<div class="fb '+(a.ok?'ok':'wr')+' on"><strong>'+(a.ok?'✅ Correct!':'❌ Not quite.')+'</strong>'+q.exp+'</div>':'<div class="fb" id="fb"></div>';var diffBadge='<span class="qdiff" style="background:'+DIFF_COLORS[q.diff]+'22;color:'+DIFF_COLORS[q.diff]+';">'+q.diff+'</span>';document.getElementById('qcon').innerHTML='<div class="qcard"><div class="qmeta"><span class="qnum">Q'+(curQ+1)+'/'+qs.length+'</span><span class="qsec">'+SUBJ_LABELS[selSubjKey]+'</span>'+diffBadge+tt+ch+'</div><div class="qtxt">'+q.txt+'</div>'+sh+'<div class="opts">'+oh+'</div>'+fh+'</div>';document.getElementById('qnL').innerHTML=curQ>0?'<button class="btn bo" onclick="prevQ()">← Prev</button>':'';document.getElementById('qnR').innerHTML=a.done?(curQ<qs.length-1?'<button class="btn bp" onclick="nextQ()">Next →</button>':'<button class="btn bp" onclick="showRes()">Results 🎉</button>'):'';};
+function chOpt(i){if(ansd)return;var q=qs[curQ],ok=i===q.ans;ans[curQ]={done:true,ok:ok,ch:i};ansd=true;q.opts.forEach(function(_,x){var b=document.getElementById('o'+x);if(!b)return;b.disabled=true;if(x===q.ans)b.className='obtn ok';else if(x===i&&!ok)b.className='obtn wr';});var f=document.getElementById('fb');if(f){f.className='fb '+(ok?'ok':'wr')+' on';f.innerHTML='<strong>'+(ok?'✅ Correct!':'❌ Not quite.')+'</strong>'+q.exp;}document.getElementById('qnR').innerHTML=curQ<qs.length-1?'<button class="btn bp" onclick="nextQ()">Next →</button>':'<button class="btn bp" onclick="showRes()">Results 🎉</button>';}
+function nextQ(){if(curQ<qs.length-1){curQ++;renderQ();}}
+function prevQ(){if(curQ>0){curQ--;renderQ();}}
+
+function showRes(){document.getElementById('qquestion').style.display='none';document.getElementById('qresults').style.display='block';var tot=ans.filter(function(a){return a.ok;}).length;var pct=Math.round(tot/qs.length*100);var cc,gr,su;if(pct>=80){cc='#16a34a';gr='Excellent! 🌟';su='Outstanding — you really know your stuff!';}else if(pct>=60){cc='#4f46e5';gr='Good job! 👍';su='Solid — a little more practice and you\'ll be excellent!';}else if(pct>=40){cc='#d97706';gr='Keep going! 💪';su='Developing well — focus on the topics below.';}else{cc='#dc2626';gr="Don't give up! 🔥";su='Every expert was once a beginner — review the suggestions!';}
+var ci=document.getElementById('circ');ci.style.borderColor=cc;ci.style.color=cc;document.getElementById('cbig').textContent=tot;document.getElementById('csm').textContent='/ '+qs.length;document.getElementById('rtitle').textContent=gr;document.getElementById('rsub').textContent=su;
+document.getElementById('ssco').innerHTML='<div class="ssc" style="background:'+DIFF_COLORS[selDiffKey]+'22;"><div class="sv2" style="color:'+DIFF_COLORS[selDiffKey]+';">'+tot+'/'+qs.length+'</div><div class="sl2" style="color:'+DIFF_COLORS[selDiffKey]+';">'+SUBJ_LABELS[selSubjKey]+'</div><div style="font-size:.72rem;color:'+DIFF_COLORS[selDiffKey]+';">'+pct+'%</div></div><div class="ssc" style="background:var(--g1);"><div class="sv2" style="color:var(--g6);">'+selDiffKey+'</div><div class="sl2" style="color:var(--g6);">Difficulty</div></div><div class="ssc" style="background:var(--g1);"><div class="sv2" style="color:var(--g6);">'+(pct>=80?'A':pct>=60?'B':pct>=40?'C':'D')+'</div><div class="sl2" style="color:var(--g6);">Grade</div></div>';
+document.getElementById('rlist').innerHTML=qs.map(function(q,i){var a=ans[i];var ch=a.ch>=0?q.opts[a.ch]:'—';return'<div class="rrow '+(a.ok?'ok':'wr')+'"><div>'+(a.ok?'✅':'❌')+'</div><div><strong>Q'+(i+1)+': '+q.top+(q.chapter?' ('+q.chapter+')':'')+'</strong><span>'+(a.ok?'Correct':'Your: "'+ch+'" · Correct: "'+q.opts[q.ans]+'"')+'</span></div></div>';}).join('');
+var topicMap={};qs.forEach(function(q,i){var t=q.top||'General';if(!topicMap[t])topicMap[t]={ok:0,tot:0};topicMap[t].tot++;if(ans[i].ok)topicMap[t].ok++;});
+document.getElementById('tbars').innerHTML=Object.keys(topicMap).map(function(t){var d=topicMap[t];var p=Math.round(d.ok/d.tot*100);var c=p>=80?'#16a34a':p>=60?'#4f46e5':p>=40?'#d97706':'#dc2626';return'<div class="tbr"><div class="tbh"><span class="tbn" style="color:'+c+'">'+t+'</span><span class="tbs">'+d.ok+'/'+d.tot+' · '+p+'%</span></div><div class="tbb"><div class="tbf" style="width:'+p+'%;background:'+c+';"></div></div></div>';}).join('');
+var sg=[];if(pct<60)sg.push({i:'🔴',t:SUBJ_LABELS[selSubjKey]+' ('+pct+'%) — Review the topics above. Try Easy difficulty first.'});Object.keys(topicMap).forEach(function(t){var d=topicMap[t];var p=d.ok/d.tot;if(p<1)sg.push({i:p<.5?'🟡':'🟢',t:t+': '+(TIPS[t]||'Keep practising this topic.')});});if(!sg.length)sg.push({i:'🌟',t:'Perfect score! Try a harder difficulty or a different subject!'});
+document.getElementById('sugs').innerHTML=sg.map(function(s){return'<div class="sugi"><span>'+s.i+'</span><span>'+s.t+'</span></div>';}).join('');
+var entry={date:new Date().toISOString().split('T')[0],sessionType:'quiz',subject:selSubjKey,difficulty:selDiffKey,score:tot,total:qs.length,pct:pct,topicResults:topicMap,notes:'Auto-saved from quiz (V4 adaptive)',savedAt:new Date().toISOString()};
+setBanner('sy','🔄 Saving score to cloud…',false);document.getElementById('connBanner').classList.remove('hid');
+DB.save(entry).then(function(fid){entry._fid=fid;sess.push(entry);sess.sort(function(a,b){return a.date.localeCompare(b.date);});setBanner('ok','✅ Score saved to cloud! Open Dashboard on any device.',false);setTimeout(function(){document.getElementById('connBanner').classList.add('hid');},5000);updStats();v4Dashboard();document.getElementById('sbanner').style.display='flex';toast('☁️ Synced to cloud!');}).catch(function(e){var msg=e&&e.message?e.message:String(e);setBanner('er','❌ Could not save: '+msg,true);toast('⚠️ Could not sync.');});}
+
+function retryQ(){document.getElementById('qresults').style.display='none';document.getElementById('sbanner').style.display='none';startQ();}
+function goHome(){document.getElementById('qresults').style.display='none';document.getElementById('qquestion').style.display='none';document.getElementById('sbanner').style.display='none';document.getElementById('qwelcome').style.display='block';}
+
+// DASHBOARD
+var pCh,sCh,gmCh,chMode='ov',chInit=false;
+function initCharts(){if(chInit)return;chInit=true;pCh=new Chart(document.getElementById('pChart').getContext('2d'),{type:'line',data:{labels:[],datasets:[]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:9,font:{size:9}}}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:9}},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:8}},grid:{display:false}}}}});sCh=new Chart(document.getElementById('sChart').getContext('2d'),{type:'bar',data:{labels:['🔤 Grammar','➕ Arithmetic','🧠 Reasoning','🔬 Science','🌍 Geography','💻 Computing'],datasets:[{label:'Avg %',data:[0,0,0,0,0,0],backgroundColor:['rgba(124,58,237,.75)','rgba(8,145,178,.75)','rgba(5,150,105,.75)','rgba(234,88,12,.75)','rgba(219,39,119,.75)','rgba(79,70,229,.75)'],borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100,ticks:{callback:function(v){return v+'%';},font:{size:9}},grid:{color:'#f3f4f6'}},x:{ticks:{font:{size:8}},grid:{display:false}}}}});gmCh=new Chart(document.getElementById('gmChart').getContext('2d'),{type:'doughnut',data:{labels:['Grammar','Arithmetic','Reasoning','Science','Geography','Computing'],datasets:[{data:[0,0,0,0,0,0],backgroundColor:['rgba(124,58,237,.8)','rgba(8,145,178,.8)','rgba(5,150,105,.8)','rgba(234,88,12,.8)','rgba(219,39,119,.8)','rgba(79,70,229,.8)'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9}}}},cutout:'55%'}});}
+function swCh(m,btn){chMode=m;document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});btn.classList.add('on');updPChart();}
+function subjSess(subj){return sess.filter(function(s){return s.subject===subj;});}
+function subjAvg(subj){var s=subjSess(subj);return s.length?av(s.map(function(x){return x.pct||0;})):null;}
+function av(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:0;}
+function updPChart(){if(!sess.length)return;var sr=sess.slice().sort(function(a,b){return a.date.localeCompare(b.date);});var lb=sr.map(function(s){return fmtD(s.date);});var subjColors={grammar:'#7c3aed',arithmetic:'#0891b2',reasoning:'#059669',science:'#ea580c',geography:'#db2777',computing:'#4f46e5'};if(chMode==='ov'){pCh.data.labels=lb;pCh.data.datasets=[{label:'Overall %',data:sr.map(function(s){return s.pct||0;}),borderColor:'#4f46e5',backgroundColor:'rgba(79,70,229,.1)',tension:.3,fill:true,pointRadius:3,pointBackgroundColor:'#4f46e5'}];}else{var subjMap={gr:'grammar',ma:'arithmetic',sc:'science'};var subj=subjMap[chMode]||'grammar';var filtered=sr.filter(function(s){return s.subject===subj;});pCh.data.labels=filtered.map(function(s){return fmtD(s.date);});pCh.data.datasets=[{label:SUBJ_LABELS[subj]+' %',data:filtered.map(function(s){return s.pct||0;}),borderColor:subjColors[subj],backgroundColor:'rgba(79,70,229,.1)',tension:.3,fill:true,pointRadius:3,pointBackgroundColor:subjColors[subj]}];}pCh.update();}
+function updSChart(){var subjects=['grammar','arithmetic','reasoning','science','geography','computing'];var avgs=subjects.map(function(s){var a=subjAvg(s);return a!==null?Math.round(a):0;});sCh.data.datasets[0].data=avgs;sCh.update();gmCh.data.datasets[0].data=avgs;gmCh.update();}
+function updStats(){var n=sess.length;document.getElementById('totS').textContent=n+(n===1?' session':' sessions');if(!n){['sOv','sGr','sAr','sRe','sOt'].forEach(function(id){document.getElementById(id).textContent='—';});return;}var all=sess.map(function(s){return s.pct||0;});document.getElementById('sOv').textContent=Math.round(av(all))+'%';var ga=subjAvg('grammar'),aa=subjAvg('arithmetic'),ra=subjAvg('reasoning');var otherVals=['science','geography','computing'].map(function(s){return subjAvg(s);}).filter(function(x){return x!==null;});var oa=otherVals.length?av(otherVals):null;document.getElementById('sGr').textContent=ga!==null?Math.round(ga)+'%':'—';document.getElementById('sAr').textContent=aa!==null?Math.round(aa)+'%':'—';document.getElementById('sRe').textContent=ra!==null?Math.round(ra)+'%':'—';document.getElementById('sOt').textContent=oa!==null?Math.round(oa)+'%':'—';}
+function mkSug(pct,name,tips,subs){var lv,ic,lb;if(pct<50){lv='hi';ic='🔴';lb='Needs urgent focus';}else if(pct<75){lv='me';ic='🟡';lb='Needs more practice';}else{lv='lo';ic='🟢';lb='Doing well!';}var f=subs.slice(0,pct<50?4:2).join(', ');return'<div class="si '+lv+'"><div style="font-size:.88rem;flex-shrink:0;">'+ic+'</div><div><strong>'+name+' — '+Math.round(pct)+'% · '+lb+'</strong><span>Focus: '+f+'.<br>'+tips+'</span></div></div>';}
+function updSugs(){var ge=document.getElementById('gSug'),me=document.getElementById('mSug');var ga=subjAvg('grammar'),aa=subjAvg('arithmetic'),ra=subjAvg('reasoning');var sa=subjAvg('science'),goa=subjAvg('geography'),ca=subjAvg('computing');var engHtml='';if(ga!==null)engHtml+=mkSug(ga,'🔤 Grammar','Practise word classes, punctuation, apostrophes, and sentence types.',['Word Classes','Punctuation','Apostrophes','Verb Tense','Conjunctions','Subjunctive','Passive Voice']);if(aa!==null)engHtml+=mkSug(aa,'➕ Arithmetic','Drill times tables. Use fraction strips. Practise inverse operations.',['Fractions','Missing Numbers','Large Numbers','Percentages','Multiplication']);if(ra!==null)engHtml+=mkSug(ra,'🧠 Reasoning','Read problems twice. Write a number sentence before calculating.',['Multi-step','Word Problems','Money']);if(!engHtml)engHtml='<div class="nd">Complete Grammar, Arithmetic, or Reasoning quizzes to see suggestions.</div>';ge.innerHTML=engHtml;var otherHtml='';if(sa!==null)otherHtml+=mkSug(sa,'🔬 Science','Review the chapter you found hardest. Use diagrams to remember processes.',['Living Things','Animals','Materials','Forces','Light','Electricity']);if(goa!==null)otherHtml+=mkSug(goa,'🌍 Geography','Use maps and atlases to practise. Learn capital cities and key physical features.',['UK Geography','World Geography','Climate','Map Skills']);if(ca!==null)otherHtml+=mkSug(ca,'💻 Computing','Practise coding with Scratch or Code.org. Review online safety rules.',['Algorithms','Data','Networks','Online Safety','Digital Literacy']);if(!otherHtml)otherHtml='<div class="nd">Complete Science, Geography, or Computing quizzes to see suggestions.</div>';me.innerHTML=otherHtml;}
+function updTable(){var tb=document.getElementById('hBody');if(!sess.length){tb.innerHTML='<tr><td colspan="8" class="nd">No sessions yet — complete a quiz!</td></tr>';return;}var sr=sess.slice().sort(function(a,b){return b.date.localeCompare(a.date);});tb.innerHTML=sr.map(function(s){var pct=s.pct||0;var gr,bc;if(pct>=80){gr='Excellent';bc='bgn';}else if(pct>=60){gr='Good';bc='bbl';}else if(pct>=40){gr='Developing';bc='byw';}else{gr='Needs Work';bc='brd';}var subjLabel=SUBJ_LABELS[s.subject]||s.subject||'—';var diffLabel=s.difficulty||'—';var dc=DIFF_COLORS[diffLabel]||'#9ca3af';var delBtn=s._fid?'<button class="db" onclick="delE(\''+s._fid+'\')" title="Delete">🗑</button>':'';return'<tr><td>'+fmtD(s.date)+'</td><td>'+subjLabel+'</td><td><span class="badge" style="background:'+dc+'22;color:'+dc+';">'+diffLabel+'</span></td><td>'+(s.score!==undefined?s.score+'/'+s.total:'—')+'</td><td><strong>'+pct+'%</strong></td><td><span class="badge '+bc+'">'+gr+'</span></td><td style="font-size:.72rem;color:var(--g6);">'+(s.notes||'—')+'</td><td>'+delBtn+'</td></tr>';}).join('');}
+function refreshD(){setBanner('sy','🔄 Loading from cloud…',false);document.getElementById('connBanner').classList.remove('hid');DB.loadAll().then(function(data){sess=data;sess.sort(function(a,b){return a.date.localeCompare(b.date);});setBanner('ok','✅ Refreshed from cloud',false);setTimeout(function(){document.getElementById('connBanner').classList.add('hid');},4000);initCharts();updStats();updTable();updSugs();updPChart();updSChart();toast('✅ Refreshed.');}).catch(function(e){setBanner('er','❌ Could not refresh: '+(e&&e.message?e.message:e),true);toast('⚠️ Could not refresh.');});}
+
+// LOG SCORE
+function addManual(){var date=document.getElementById('eDate').value;var subj=document.getElementById('eSubj').value;var diff=document.getElementById('eDiff').value;var chapter=document.getElementById('eChapter').value.trim();var score=parseInt(document.getElementById('eScore').value);var total=parseInt(document.getElementById('eTotal').value)||10;var notes=document.getElementById('eNotes').value.trim();if(!date){toast('Please select a date.');return;}if(isNaN(score)||score<0||score>total){toast('Score must be between 0 and '+total+'.');return;}var pct=Math.round(score/total*100);var btn=document.getElementById('btnP');btn.disabled=true;btn.textContent='Saving…';setBanner('sy','🔄 Saving to cloud…',false);document.getElementById('connBanner').classList.remove('hid');var entry={date:date,sessionType:'manual',subject:subj,difficulty:diff,chapter:chapter,score:score,total:total,pct:pct,notes:notes,savedAt:new Date().toISOString()};DB.save(entry).then(function(fid){entry._fid=fid;sess.push(entry);sess.sort(function(a,b){return a.date.localeCompare(b.date);});setBanner('ok','✅ Saved to cloud!',false);setTimeout(function(){document.getElementById('connBanner').classList.add('hid');},4000);updStats();toast('☁️ Saved to cloud!');['eScore','eNotes','eChapter'].forEach(function(id){document.getElementById(id).value='';});btn.disabled=false;btn.textContent='+ Add Score';}).catch(function(e){setBanner('er','❌ Could not save: '+(e&&e.message?e.message:e),true);toast('⚠️ Could not save.');btn.disabled=false;btn.textContent='+ Add Score';});}
+
+function delE(fid){if(!fid){toast('No cloud ID found.');return;}if(!confirm('Delete this session from the cloud?'))return;DB.del(fid).then(function(){sess=sess.filter(function(s){return s._fid!==fid;});updStats();updTable();updSugs();updPChart();updSChart();toast('Deleted.');}).catch(function(){toast('⚠️ Could not delete.');});}
+
+// HELPERS
+function fmtD(d){var parts=d.split('-');var mn=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return parseInt(parts[2])+' '+mn[parseInt(parts[1])-1]+' '+parts[0];}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(function(){t.classList.remove('on');},3500);}
+
+// INIT
+document.addEventListener('DOMContentLoaded',function(){var td=new Date().toISOString().split('T')[0];document.getElementById('eDate').value=td;initApp();});
+</script>
+
+<style>
+.v5toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--g2);border-radius:12px;background:var(--card,#fff)}
+.v5timer{font-size:1.15rem;font-weight:900;color:#0f766e;letter-spacing:.04em}.v5timer.warn{color:#d97706}.v5timer.danger{color:#dc2626;animation:v5pulse 1s infinite}.v5actions{display:flex;gap:8px;flex-wrap:wrap}
+.v5pause{text-align:center;padding:36px 16px;border:2px dashed var(--g3);border-radius:14px;background:var(--g0);margin:10px 0}.v5pause h2{margin-bottom:8px}.v5pause p{margin-bottom:16px;color:var(--g6)}
+@keyframes v5pulse{50%{opacity:.55}}@media(max-width:520px){.v5toolbar{align-items:flex-start;flex-direction:column}.v5actions{width:100%}.v5actions .btn{flex:1}}
+</style>
+<script>
+/* V5 challenge, timer, pause/resume and early-finish enhancement layer. */
+var v5TimerId=null,v5Seconds=0,v5Paused=false,v5Finished=false;
+function v5TimeForSubject(){return {arithmetic:25,reasoning:30,grammar:25,comprehension:35,science:20,geography:20,computing:20}[selSubjKey]||25;}
+function v5PaintTimer(){var el=document.getElementById('v5timer');if(!el)return;var m=Math.floor(v5Seconds/60),s=v5Seconds%60;el.textContent='⏱ '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');el.className='v5timer'+(v5Seconds<=60?' danger':v5Seconds<=300?' warn':'');}
+function v5StartTimer(){clearInterval(v5TimerId);v5Seconds=v5TimeForSubject()*60;v5Paused=false;v5Finished=false;v5PaintTimer();v5TimerId=setInterval(function(){if(v5Paused||v5Finished)return;v5Seconds--;v5PaintTimer();if(v5Seconds<=0){clearInterval(v5TimerId);alert('Time is up. The quiz will now be marked.');v5FinishNow();}},1000);}
+function v5PauseQuiz(){if(v5Finished||v5Paused)return;v5Paused=true;document.getElementById('qcon').style.display='none';document.querySelector('#qquestion .qnav').style.display='none';document.getElementById('v5pausePanel').style.display='block';document.getElementById('v5pause').disabled=true;}
+function v5ResumeQuiz(){if(v5Finished)return;v5Paused=false;document.getElementById('qcon').style.display='block';document.querySelector('#qquestion .qnav').style.display='flex';document.getElementById('v5pausePanel').style.display='none';document.getElementById('v5pause').disabled=false;}
+function v5EndQuiz(){if(confirm('End the quiz now? Unanswered questions will be marked incorrect, and the result will be saved.'))v5FinishNow();}
+function v5FinishNow(){v5Finished=true;v5Paused=false;clearInterval(v5TimerId);ans.forEach(function(a){if(!a.done){a.done=true;a.ok=false;a.ch=-1;}});showRes();}
+var v5OriginalStartQ=startQ;startQ=function(){v5OriginalStartQ();v5StartTimer();document.getElementById('qcon').style.display='block';document.querySelector('#qquestion .qnav').style.display='flex';document.getElementById('v5pausePanel').style.display='none';document.getElementById('v5pause').disabled=false;};
+var v5OriginalShowRes=showRes;showRes=function(){v5Finished=true;clearInterval(v5TimerId);return v5OriginalShowRes();};
+function v5ShuffleQuestion(q){var correct=q.opts[q.ans],opts=pickRandom(q.opts,q.opts.length);q.opts=opts;q.ans=opts.indexOf(correct);q.diff='hard';q.id='v5-'+Date.now()+'-'+Math.random();return q;}
+function v5MathChallenge(){var kind=rnd(0,5),a,b,c,q;
+ if(kind===0){a=rnd(18,47);b=rnd(12,29);c=rnd(350,950);q={top:'Multi-step arithmetic',txt:'A theatre has '+a+' rows with '+b+' seats in each row. If '+c+' tickets are sold, how many seats remain?',opts:[a*b-c,a*b-c+b,a*b-c-a,a*b+c],ans:0,exp:'First find total seats: '+a+' × '+b+' = '+(a*b)+'. Then subtract '+c+'.'};}
+ else if(kind===1){a=rnd(120,480);b=[15,20,25,35][rnd(0,3)];var ans=a*b/100;q={top:'Percentages',txt:'A quantity is increased by '+b+'%. What is the increase when the original quantity is '+a+'?',opts:[ans,ans+b,a+ans,a-ans],ans:0,exp:'Find '+b+'% of '+a+': '+b+'/100 × '+a+' = '+ans+'.'};}
+ else if(kind===2){a=rnd(12,35);b=rnd(14,28);q={top:'Algebraic thinking',txt:'A number multiplied by '+a+' is '+(a*b)+'. The same number is then increased by '+(a-3)+'. What is the final value?',opts:[b+a-3,b+a,b*a+a-3,b-3],ans:0,exp:'The hidden number is '+b+'. Then add '+(a-3)+'.'};}
+ else if(kind===3){a=rnd(3,8);b=rnd(2,6);c=rnd(4,9);var val=(a+b)*c-b;q={top:'BIDMAS',txt:'Calculate ('+a+' + '+b+') × '+c+' − '+b+'.',opts:[val,(a+b)*(c-b),a+b*c-b,(a+b)*c+b],ans:0,exp:'Brackets first, then multiplication, then subtraction.'};}
+ else if(kind===4){a=rnd(3,8);b=rnd(a+2,12);c=rnd(2,a-1);var num=b*c;q={top:'Fractions',txt:c+'/'+b+' of a number is '+num+'. What is the number?',opts:[b*b,num*b/c,num*c/b,num+b],ans:1,exp:'Divide by '+c+' and multiply by '+b+': '+num+' ÷ '+c+' × '+b+'.'};}
+ else{a=rnd(20,60);b=rnd(3,9);c=rnd(2,7);var total=a*b+c;q={top:'Remainders',txt:'A number gives quotient '+a+' and remainder '+c+' when divided by '+b+'. What is the number?',opts:[total,a+b+c,a*b-c,a+c],ans:0,exp:'Number = divisor × quotient + remainder.'};}
+ return v5ShuffleQuestion(q);}
+function v5ReasonChallenge(){var kind=rnd(0,4),a,b,c,q;
+ if(kind===0){a=rnd(2,5);b=rnd(1,4);var seq=[a];for(var i=0;i<4;i++)seq.push(seq[seq.length-1]*2+b);var nxt=seq[4]*2+b;q={top:'Complex sequence',txt:'What comes next? '+seq.join(', ')+', ?',opts:[nxt,nxt-b,nxt+b,seq[4]+b],ans:0,exp:'Each term is doubled, then '+b+' is added.'};}
+ else if(kind===1){a=rnd(18,35);b=rnd(3,8);var hens=(a*4-b*2)/2;q={top:'Logic and equations',txt:'There are '+a+' animals, all chickens or sheep. Altogether they have '+(a*4-b*2)+' legs. How many chickens are there?',opts:[b,hens,a-b,b*2],ans:0,exp:'If all were sheep there would be '+(a*4)+' legs. Each chicken reduces the total by 2 legs.'};}
+ else if(kind===2){a=rnd(4,9);b=rnd(3,7);c=rnd(2,5);q={top:'Two-step rule',txt:'A machine multiplies a number by '+a+' then subtracts '+b+'. Its output is '+(a*c-b)+'. What was the input?',opts:[c,c+b,a*c,(a*c-b)/a],ans:0,exp:'Reverse the operations: add '+b+', then divide by '+a+'.'};}
+ else if(kind===3){a=rnd(5,12);b=rnd(2,4);q={top:'Counting',txt:'How many different two-digit numbers can be made using '+a+', '+(a+1)+' and '+(a+2)+' if no digit may be repeated?',opts:[6,3,9,4],ans:0,exp:'There are 3 choices for the first digit and 2 remaining choices for the second: 3 × 2.'};}
+ else{a=rnd(4,9);b=rnd(3,7);q={top:'Working backwards',txt:'Maya thinks of a number, triples it, adds '+b+', then halves the result to get '+((a*3+b)/2)+'. What was her number?',opts:[a,a+b,a*2,(a*3+b)],ans:0,exp:'Reverse the steps: double, subtract '+b+', then divide by 3.'};}
+ return v5ShuffleQuestion(q);}
+var v5Grammar=[
+ {top:'Advanced punctuation',txt:'Which sentence is punctuated correctly?',opts:['Although it was late, we continued working.','Although, it was late we continued working.','Although it was late we, continued working.','Although it was late; we continued, working.'],ans:0,exp:'An introductory subordinate clause is followed by a comma.'},
+ {top:'Subject–verb agreement',txt:'Choose the sentence with correct subject–verb agreement.',opts:['Neither of the answers is correct.','Neither of the answers are correct.','Neither of the answer are correct.','Neither answers is correct.'],ans:0,exp:'“Neither” is singular here, so it takes “is”.'},
+ {top:'Ambiguity',txt:'Which revision removes the ambiguity in “When Zara met Priya, she was carrying a violin”?',opts:['Zara was carrying a violin when she met Priya.','When Zara met Priya, she carried it.','She met Priya carrying a violin.','When they met, she had one.'],ans:0,exp:'The revision clearly identifies Zara as the person carrying the violin.'},
+ {top:'Subordinate clauses',txt:'Which sentence contains a relative clause?',opts:['The book that I borrowed was fascinating.','I borrowed the book yesterday.','Borrowing the book, I hurried home.','The fascinating book was long.'],ans:0,exp:'“that I borrowed” is a relative clause modifying “book”.'},
+ {top:'Precise vocabulary',txt:'Which verb most strongly suggests that someone looked secretly?',opts:['peered','glanced','observed','stared'],ans:0,exp:'“Peered” suggests looking carefully, often with difficulty or secrecy.'}
+];v5Grammar.forEach(v5ShuffleQuestion);
+var v5CompPassage='The villagers had long dismissed the ruined tower as an empty shell, but Amara noticed that each evening a narrow beam of light crossed its highest window. Rather than announce her discovery, she recorded the times in a notebook and compared them with the setting sun. On the seventh evening, clouds covered the horizon, yet the beam appeared as usual. Amara closed her notebook. Whatever produced the light, it was not the sun.';
+var v5Comp=[
+ {top:'Inference',sen:v5CompPassage,txt:'Why does Amara record the times before telling anyone?',opts:['She wants evidence before making a claim.','She has forgotten how to speak.','She wants the tower demolished.','She is waiting for a friend.'],ans:0,exp:'Her careful recording shows that she wants to test her observation.'},
+ {top:'Evidence',sen:v5CompPassage,txt:'Which detail proves that the setting sun cannot explain the beam?',opts:['The beam appears when clouds cover the horizon.','The tower is ruined.','The villagers dismiss the tower.','Amara owns a notebook.'],ans:0,exp:'Clouds block the sunset, yet the light still appears.'},
+ {top:'Author’s craft',sen:v5CompPassage,txt:'What effect does the final sentence create?',opts:['It increases mystery and suspense.','It explains the whole mystery.','It makes the setting humorous.','It proves the villagers were correct.'],ans:0,exp:'The final sentence rules out the obvious explanation and deepens the mystery.'},
+ {top:'Vocabulary in context',sen:v5CompPassage,txt:'What does “dismissed” most nearly mean here?',opts:['treated as unimportant','sent home from school','destroyed completely','measured carefully'],ans:0,exp:'The villagers considered the tower unworthy of attention.'}
+];v5Comp.forEach(v5ShuffleQuestion);
+var v5OriginalBuildQuiz=buildQuiz;buildQuiz=function(){var base=v5OriginalBuildQuiz(),challenge=[];if(selSubjKey==='arithmetic'){for(var i=0;i<8;i++)challenge.push(v5MathChallenge());}else if(selSubjKey==='reasoning'){for(var j=0;j<8;j++)challenge.push(v5ReasonChallenge());}else if(selSubjKey==='grammar')challenge=v5Grammar.slice();else if(selSubjKey==='comprehension')challenge=v5Comp.slice();if(selDiffKey==='hard'||selDiffKey==='mixed'){var keep=base.slice(0,Math.max(5,15-challenge.length));return pickRandom(keep.concat(challenge),Math.min(15,keep.length+challenge.length));}return base;};
+</script>
+
+</body>
+</html>
